@@ -1,9 +1,8 @@
 package com.mymiki.mimyki;
 
-import static com.mymiki.mimyki.ScheduleUtils.daysInMonthArray;
+import static com.mymiki.mimyki.ScheduleUtils.daysInWeekArray;
 import static com.mymiki.mimyki.ScheduleUtils.monthYearFromDate;
 
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -20,41 +19,32 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 
-public class ScheduleTaskActivity extends AppCompatActivity implements ScheduleAdapter.OnItemListener
-{
+public class WeekScheduleActivity extends AppCompatActivity implements ScheduleAdapter.OnItemListener{
     private TextView monthYearText;
     private RecyclerView scheduleRecycleView;
-    private TemporalAccessor date;
-
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 //        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_schedule_task);
-        initWidgets();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            ScheduleUtils.selectDate = LocalDate.now();
-            setMonthView();
-        }
-//        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.schedule), (v, insets) -> {
+        setContentView(R.layout.activity_week_schedule);
+//        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
 //            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
 //            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
 //            return insets;
 //        });
+        initWidgets();
+        setWeekView();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void setMonthView()
+    private void setWeekView()
     {
         monthYearText.setText(monthYearFromDate(ScheduleUtils.selectDate));
-        ArrayList<LocalDate> daysInMonth = daysInMonthArray(ScheduleUtils.selectDate);
-        ScheduleAdapter scheduleAdapter = new ScheduleAdapter(daysInMonth, this);
+        ArrayList<LocalDate> days = daysInWeekArray(ScheduleUtils.selectDate);
+        ScheduleAdapter scheduleAdapter = new ScheduleAdapter(days, (ScheduleAdapter.OnItemListener) this);
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getApplicationContext(),7);
         scheduleRecycleView.setLayoutManager(layoutManager);
         scheduleRecycleView.setAdapter(scheduleAdapter);
@@ -67,33 +57,24 @@ public class ScheduleTaskActivity extends AppCompatActivity implements ScheduleA
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public void previousMontAction(View view)
+    public void previousWeekAction(View view)
     {
-        ScheduleUtils.selectDate = ScheduleUtils.selectDate.minusMonths(1);
-        setMonthView();
+        ScheduleUtils.selectDate = ScheduleUtils.selectDate.minusWeeks(1);
+        setWeekView();
+    }
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void nextWeekAction(View view)
+    {
+        ScheduleUtils.selectDate = ScheduleUtils.selectDate.plusWeeks(1);
+        setWeekView();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public void nextMontAction(View view)
-    {
-        ScheduleUtils.selectDate = ScheduleUtils.selectDate.plusMonths(1);
-        setMonthView();
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    @Override
     public void onItemClick(int position, String dayText) {
-        if (dayText != null && !dayText.equals("")) {
-            String message = "Selected Date: " + dayText + " " + monthYearFromDate(ScheduleUtils.selectDate);
-            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-        } else {
-            String message = "No date selected.";
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-        }
+        String message = "Selected Date: " + dayText + " " + monthYearFromDate(ScheduleUtils.selectDate);
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
-    public void weeklyAction(View view)
-    {
-        startActivity(new Intent(this, WeekScheduleActivity.class));
+    public void newEventAction(View view) {
     }
 }
