@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#1E1E1E"
+    android:padding="16dp"
+    android:layout_marginBottom="16dp">
+
+    <TextView
+        android:id="@+id/task_group_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Group Title"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Container for dynamically added task items -->
+    <LinearLayout
+        android:id="@+id/task_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+</LinearLayout>
