@@ -10,6 +10,7 @@
     <string name="thur">THUR</string>
     <string name="fri">FRI</string>
     <string name="sat">SAT</string>
+    <string name="eventname">Nhap ten su kien</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

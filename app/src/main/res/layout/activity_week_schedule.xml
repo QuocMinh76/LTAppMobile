@@ -132,6 +132,7 @@
         android:textSize="20sp"
         tools:ignore="UsingOnClickInXml"/>
     <ListView
+        android:id="@+id/eventListView"
         android:layout_width="match_parent"
         android:layout_height="5dp"
         android:layout_weight="5"/>
