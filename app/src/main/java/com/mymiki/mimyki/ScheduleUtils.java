@@ -6,12 +6,27 @@ import androidx.annotation.RequiresApi;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class ScheduleUtils {
     public static LocalDate selectDate;
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static String formatteDate(LocalDate date)
+    {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy");
+        return date.format(formatter);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static String formatteTime(LocalTime time)
+    {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm:ss a");
+        return time.format(formatter);
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public static String monthYearFromDate(LocalDate date)
@@ -71,6 +86,5 @@ public class ScheduleUtils {
         }
         return null;
     }
-
 
 }

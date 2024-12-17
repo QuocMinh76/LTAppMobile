@@ -33,7 +33,7 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleViewHolder> {
             layoutParams.height = (int) (parent.getHeight() * 0.166666666);
         else
             layoutParams.height = (int) parent.getHeight();
-        return new ScheduleViewHolder(view, onItemListener);
+        return new ScheduleViewHolder(view, onItemListener, days);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -59,6 +59,6 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleViewHolder> {
 
     public interface OnItemListener
     {
-        void onItemClick(int position, String dayText);
+        void onItemClick(int position, LocalDate date);
     }
 }
