@@ -61,7 +61,7 @@ public class ScheduleUtils {
         LocalDate nextMonth = selectDate.plusMonths(1);
 
         YearMonth prevYearMonth = YearMonth.from(prevMonth);
-        int prevDaysInMonth = yearMonth.lengthOfMonth();
+        int prevDaysInMonth = prevYearMonth.lengthOfMonth();
 
         LocalDate firstOfMonth = ScheduleUtils.selectDate.withDayOfMonth(1);
         int dayOfWeek = firstOfMonth.getDayOfWeek().getValue();
@@ -89,6 +89,8 @@ public class ScheduleUtils {
     {
         ArrayList<LocalDate> days = new ArrayList<>();
         LocalDate current = sunDayForDate(selectDate);
+
+        if (current == null) return days;
         LocalDate endDate = current.plusWeeks(1);
         while (current.isBefore(endDate))
         {
@@ -108,7 +110,7 @@ public class ScheduleUtils {
                 return current;
             current = current.minusDays(1);
         }
-        return null;
+        return current.minusDays(current.getDayOfWeek().getValue() % 7);
     }
 
 }
