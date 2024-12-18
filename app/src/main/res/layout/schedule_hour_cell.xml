@@ -15,47 +15,18 @@
         android:text="10:00"
         tools:ignore="MissingConstraints" />
 
-    <LinearLayout
+    <HorizontalScrollView
+        android:id="@+id/eventScrollView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="5dp"
-        android:background="@color/peachPearl">
-        <TextView
-            android:id="@+id/event1"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_margin="5dp"
-            android:background="@color/white"
-            android:gravity="center"
-            android:textSize="16sp"
-            android:lines="2"
-            android:textColor="@color/black"
-            android:text="event1"/>
-        <TextView
-            android:id="@+id/event2"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_margin="5dp"
-            android:background="@color/white"
-            android:gravity="center"
-            android:textSize="16sp"
-            android:lines="2"
-            android:textColor="@color/black"
-            android:text="event2"/>
-        <TextView
-            android:id="@+id/event3"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_margin="5dp"
-            android:background="@color/white"
-            android:gravity="center"
-            android:textSize="16sp"
-            android:lines="2"
-            android:textColor="@color/black"
-            android:text="event3"/>
-    </LinearLayout >
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:contentDescription="Scroll to view all events">
 
+        <LinearLayout
+            android:id="@+id/eventContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="8dp" />
+    </HorizontalScrollView>
 </LinearLayout >

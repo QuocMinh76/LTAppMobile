@@ -1,11 +1,16 @@
 package com.mymiki.mimyki;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -34,42 +39,48 @@ public class ScheduleHourAdapter extends ArrayAdapter<ScheduleHourEvent> {
     }
 
     private void setEvents(View convertView, ArrayList<ScheduleEvent> events) {
-        TextView event1 = convertView.findViewById(R.id.event1);
-        TextView event2 = convertView.findViewById(R.id.event2);
-        TextView event3 = convertView.findViewById(R.id.event3);
+        LinearLayout eventContainer = convertView.findViewById(R.id.eventContainer);
 
-        if(events.size() == 0)
-        {
-            hideEvent(event1);
-            hideEvent(event2);
-            hideEvent(event3);
+        eventContainer.removeAllViews();
+
+        for (ScheduleEvent event : events) {
+            TextView eventView = new TextView(getContext());
+
+            String eventName = event.getName();
+            if (eventName.length() > 15) {
+                eventName = eventName.substring(0, 10) + "...";
+            }
+            eventView.setText(eventName);
+
+            eventView.setPadding(24, 16, 24, 16);
+            eventView.setTextSize(16);
+            eventView.setTextColor(Color.BLACK);
+            eventView.setTypeface(null, Typeface.BOLD);
+            eventView.setGravity(Gravity.CENTER);
+
+            GradientDrawable background = new GradientDrawable();
+            background.setColor(Color.parseColor("#e1c8f7"));
+            background.setCornerRadius(50);
+            background.setStroke(2, Color.BLACK);
+            eventView.setBackground(background);
+
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            layoutParams.setMargins(16, 8, 16, 8);
+            eventView.setLayoutParams(layoutParams);
+
+            eventContainer.addView(eventView);
         }
-        else if(events.size() == 1)
-        {
-            setEvent(event1, events.get(0));
-            hideEvent(event2);
-            hideEvent(event3);
-        }
-        else if(events.size() == 2)
-        {
-            setEvent(event1, events.get(0));
-            setEvent(event2, events.get(1));
-            hideEvent(event3);
-        }
-        else if(events.size() == 3)
-        {
-            setEvent(event1, events.get(0));
-            setEvent(event2, events.get(1));
-            setEvent(event3, events.get(2));
-        }
-        else
-        {
-            setEvent(event1, events.get(0));
-            setEvent(event2, events.get(1));
-            event3.setVisibility(View.VISIBLE);
-            String eventsNotShow = String.valueOf(events.size() - 2);
-            eventsNotShow += " More Events";
-            event3.setText(eventsNotShow);
+
+        if (events.isEmpty()) {
+            TextView noEventView = new TextView(getContext());
+            noEventView.setText("No Events");
+            noEventView.setPadding(16, 8, 16, 8);
+            noEventView.setTextSize(14);
+            noEventView.setTextColor(Color.GRAY);
+            eventContainer.addView(noEventView);
         }
     }
 
