@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Set default fragment
         if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.bottom_nav_view, new TaskFragment()).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new TaskFragment()).commit();
         }
     }
 
@@ -52,7 +52,8 @@ public class MainActivity extends AppCompatActivity {
                         selectedFragment = new SettingFragment();
                     }
 
-                    getSupportFragmentManager().beginTransaction().replace(R.id.bottom_nav_view, selectedFragment).commit();
+
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
                     return true;
                 }
             };
