@@ -30,16 +30,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-  
-  
-        <activity
-            android:name=".PriorityTaskActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
       
         <activity
             android:name=".ScheduleEventActivity"
@@ -48,15 +38,7 @@
         <activity
             android:name=".WeekScheduleActivity"
             android:exported="false" />
-      
-        <activity
-            android:name=".SectionTaskActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+
     </application>
 
 </manifest>
