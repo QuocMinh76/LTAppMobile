@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="matrix_strings">
+        <item>Khẩn cấp</item>
+        <item>Quan trọng</item>
+        <item>Bình thường</item>
+        <item>Khác</item>
+    </string-array>
+</resources>
