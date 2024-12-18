@@ -3,9 +3,11 @@ package com.mymiki.mimyki;
 import static com.mymiki.mimyki.ScheduleUtils.daysInWeekArray;
 import static com.mymiki.mimyki.ScheduleUtils.monthYearFromDate;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,10 +22,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class WeekScheduleActivity extends AppCompatActivity implements ScheduleAdapter.OnItemListener{
     private TextView monthYearText;
     private RecyclerView scheduleRecycleView;
+    private ListView eventListView;
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,12 +52,14 @@ public class WeekScheduleActivity extends AppCompatActivity implements ScheduleA
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getApplicationContext(),7);
         scheduleRecycleView.setLayoutManager(layoutManager);
         scheduleRecycleView.setAdapter(scheduleAdapter);
+        setEventAdapter();
     }
 
     private void initWidgets()
     {
         scheduleRecycleView = findViewById(R.id.scheduleRecycleView);
         monthYearText = findViewById(R.id.monthYear);
+        eventListView = findViewById(R.id.eventListView);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -70,11 +76,24 @@ public class WeekScheduleActivity extends AppCompatActivity implements ScheduleA
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public void onItemClick(int position, String dayText) {
-        String message = "Selected Date: " + dayText + " " + monthYearFromDate(ScheduleUtils.selectDate);
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    public void onItemClick(int position, LocalDate date) {
+        ScheduleUtils.selectDate = date;
+        setWeekView();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setEventAdapter();
+    }
+
+    private void setEventAdapter() {
+        ArrayList<ScheduleEvent> dailyEvents = ScheduleEvent.eventsForDate(ScheduleUtils.selectDate);
+        ScheduleEventAdapter scheduleEventAdapter = new ScheduleEventAdapter(getApplicationContext(), dailyEvents);
+        eventListView.setAdapter(scheduleEventAdapter);
     }
 
     public void newEventAction(View view) {
+        startActivity(new Intent(this, ScheduleEventActivity.class));
     }
 }
