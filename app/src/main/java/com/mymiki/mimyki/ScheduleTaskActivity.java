@@ -27,6 +27,7 @@ import java.util.ArrayList;
 
 public class ScheduleTaskActivity extends AppCompatActivity implements ScheduleAdapter.OnItemListener
 {
+
     private TextView monthYearText;
     private RecyclerView scheduleRecycleView;
     private TemporalAccessor date;
@@ -35,18 +36,12 @@ public class ScheduleTaskActivity extends AppCompatActivity implements ScheduleA
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-//        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_schedule_task);
         initWidgets();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             ScheduleUtils.selectDate = LocalDate.now();
             setMonthView();
         }
-//        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.schedule), (v, insets) -> {
-//            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-//            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-//            return insets;
-//        });
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -81,14 +76,11 @@ public class ScheduleTaskActivity extends AppCompatActivity implements ScheduleA
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    @Override
-    public void onItemClick(int position, String dayText) {
-        if (dayText != null && !dayText.equals("")) {
-            String message = "Selected Date: " + dayText + " " + monthYearFromDate(ScheduleUtils.selectDate);
-            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-        } else {
-            String message = "No date selected.";
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    public void onItemClick(int position, LocalDate date) {
+        if(date != null)
+        {
+            ScheduleUtils.selectDate = date;
+            setMonthView();
         }
     }
 

@@ -4,7 +4,13 @@
     <color name="orange">#FFFC6203</color>
     <color name="grey">#FF808080</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="peach">#F97272</color>
+    <color name="georgiaPeach">#F97272</color>
     <color name="peachPearl">#FFB2A5</color>
     <color name="peachPuree">#EFCFBA</color>
+    <color name="peachFuzz">#FFBE98</color>
+    <color name="peachPink">#FA9A85</color>
+    <color name="peachBlossom">#DE8286</color>
+    <color name="bMyristica">#846157</color>
+    <color name="bMargala">#964F4C</color>
+    <color name="bAlmondine">#A78C7B</color>
 </resources>
