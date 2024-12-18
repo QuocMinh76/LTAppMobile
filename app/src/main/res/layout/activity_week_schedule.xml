@@ -8,7 +8,17 @@
     android:orientation="vertical"
     android:background="@color/white"
     tools:context=".WeekScheduleActivity">
-
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="DAILY"
+        android:textColor="@color/cardview_light_background"
+        android:background="@null"
+        android:textStyle="bold"
+        android:onClick="dailyAction"
+        android:textSize="20sp"
+        tools:ignore="UsingOnClickInXml"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -32,13 +32,7 @@ public class WeekScheduleActivity extends AppCompatActivity implements ScheduleA
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_week_schedule);
-//        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-//            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-//            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-//            return insets;
-//        });
         initWidgets();
         setWeekView();
     }
@@ -95,5 +89,9 @@ public class WeekScheduleActivity extends AppCompatActivity implements ScheduleA
 
     public void newEventAction(View view) {
         startActivity(new Intent(this, ScheduleEventActivity.class));
+    }
+
+    public void dailyAction(View view) {
+        startActivity(new Intent(this, DailyScheduleActivity.class));
     }
 }

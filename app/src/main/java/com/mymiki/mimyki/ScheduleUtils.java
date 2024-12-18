@@ -29,6 +29,13 @@ public class ScheduleUtils {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
+    public static String formatteShortTime(LocalTime time)
+    {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        return time.format(formatter);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public static String monthYearFromDate(LocalDate date)
     {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy");
@@ -36,21 +43,38 @@ public class ScheduleUtils {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public static ArrayList<LocalDate> daysInMonthArray(LocalDate date)
+    public static String monthDayFromDate(LocalDate date)
+    {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM d");
+        return date.format(formatter);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static ArrayList<LocalDate> daysInMonthArray()
     {
         ArrayList<LocalDate> daysInMonthArray = new ArrayList<>();
-        YearMonth yearMonth = YearMonth.from(date);
 
+        YearMonth yearMonth = YearMonth.from(selectDate);
         int daysInMonth = yearMonth.lengthOfMonth();
 
-        LocalDate firstOfMonth = date.withDayOfMonth(1);
+        LocalDate prevMonth = selectDate.minusMonths(1);
+        LocalDate nextMonth = selectDate.plusMonths(1);
+
+        YearMonth prevYearMonth = YearMonth.from(prevMonth);
+        int prevDaysInMonth = yearMonth.lengthOfMonth();
+
+        LocalDate firstOfMonth = ScheduleUtils.selectDate.withDayOfMonth(1);
         int dayOfWeek = firstOfMonth.getDayOfWeek().getValue();
 
         for(int i = 1; i <= 42; i++)
         {
-            if(i <= dayOfWeek || i > daysInMonth + dayOfWeek)
+            if(i <= dayOfWeek)
             {
-                daysInMonthArray.add(null);
+                daysInMonthArray.add(prevMonth.of(selectDate.getYear(), prevMonth.getMonth(), prevDaysInMonth + 1 - dayOfWeek));
+            }
+            else if(i > daysInMonth + dayOfWeek)
+            {
+                daysInMonthArray.add(LocalDate.of(nextMonth.getYear(), nextMonth.getMonth(), i - dayOfWeek - daysInMonth));
             }
             else
             {
