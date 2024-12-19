@@ -61,22 +61,34 @@
         android:textColor="@color/black"
         android:layout_marginBottom="20dp" />
 
-    <Button
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:text="New event"
-        android:textColor="@color/white"
-        android:background="@null"
-        android:textStyle="bold"
-        android:onClick="newEventAction"
-        android:layout_gravity="center"
-        android:textSize="20sp"
-        tools:ignore="UsingOnClickInXml"/>
+<!--    <Button-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:text="New event"-->
+<!--        android:textColor="@color/white"-->
+<!--        android:background="@null"-->
+<!--        android:textStyle="bold"-->
+<!--        android:onClick="newEventAction"-->
+<!--        android:layout_gravity="center"-->
+<!--        android:textSize="20sp"-->
+<!--        tools:ignore="UsingOnClickInXml"/>-->
 
     <ListView
         android:id="@+id/hourListView"
         android:layout_width="match_parent"
         android:layout_height="5dp"
         android:layout_weight="5"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add_daily"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_add"
+        android:elevation="10dp"
+        android:onClick="newEventAction"
+        android:visibility="visible"
+        android:contentDescription="Add new task"/>
 
 </LinearLayout>

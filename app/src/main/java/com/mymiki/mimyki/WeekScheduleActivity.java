@@ -92,6 +92,5 @@ public class WeekScheduleActivity extends AppCompatActivity implements ScheduleA
     }
 
     public void dailyAction(View view) {
-        startActivity(new Intent(this, DailyScheduleActivity.class));
     }
 }

@@ -28,7 +28,7 @@ public class ScheduleEventAdapter extends ArrayAdapter<ScheduleEvent> {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.schedule_event_cell, parent, false);
         TextView eventCell = convertView.findViewById(R.id.eventCell);
 
-        String eventTitle = event.getName() + " " + ScheduleUtils.formatteTime(event.getTime());
+        String eventTitle = event.getName() + " - " + ScheduleUtils.formatteTime(event.getTime());
         eventCell.setText(eventTitle);
         return convertView;
     }
