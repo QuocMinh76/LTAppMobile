@@ -88,4 +88,8 @@ public class ScheduleTaskActivity extends AppCompatActivity implements ScheduleA
     {
         startActivity(new Intent(this, WeekScheduleActivity.class));
     }
+
+    public void dailyAction(View view) {
+        startActivity(new Intent(this, DailyScheduleActivity.class));
+    }
 }
