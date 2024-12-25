@@ -48,7 +48,7 @@ public class ScheduleTaskActivity extends AppCompatActivity implements ScheduleA
     private void setMonthView()
     {
         monthYearText.setText(monthYearFromDate(ScheduleUtils.selectDate));
-        ArrayList<LocalDate> daysInMonth = daysInMonthArray(ScheduleUtils.selectDate);
+        ArrayList<LocalDate> daysInMonth = daysInMonthArray();
         ScheduleAdapter scheduleAdapter = new ScheduleAdapter(daysInMonth, this);
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getApplicationContext(),7);
         scheduleRecycleView.setLayoutManager(layoutManager);
@@ -87,5 +87,9 @@ public class ScheduleTaskActivity extends AppCompatActivity implements ScheduleA
     public void weeklyAction(View view)
     {
         startActivity(new Intent(this, WeekScheduleActivity.class));
+    }
+
+    public void dailyAction(View view) {
+        startActivity(new Intent(this, DailyScheduleActivity.class));
     }
 }
