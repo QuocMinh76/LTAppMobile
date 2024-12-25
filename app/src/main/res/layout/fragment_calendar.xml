@@ -5,136 +5,53 @@
     android:layout_height="match_parent"
     tools:context=".CalendarFragment">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/schedule"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@color/white"
-        tools:context=".ScheduleTaskActivity">
+        android:padding="16dp">
+
+        <CalendarView
+            android:id="@+id/calendarView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/eventDetails"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Chọn một ngày để xem sự kiện"
+            android:padding="8dp"
+            android:textSize="16sp" />
+
+        <EditText
+            android:id="@+id/inputEvent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nhập sự kiện"
+            android:inputType="text" />
+
         <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="WEEKLY"
-            android:textColor="@color/cardview_light_background"
-            android:background="@null"
-            android:textStyle="bold"
-            android:onClick="weeklyAction"
-            android:textSize="20sp"
-            tools:ignore="UsingOnClickInXml"/>
-
-        <LinearLayout
+            android:id="@+id/btnAddEvent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="20dp"
-            android:layout_marginTop="20dp">
+            android:text="Thêm sự kiện" />
 
-            <Button
-                android:layout_weight="1.5"
-                android:layout_height="wrap_content"
-                android:layout_width="0dp"
-                android:text="@string/back"
-                android:textColor="@color/white"
-                android:background="@null"
-                android:textStyle="bold"
-                android:onClick="previousMontAction"
-                android:textSize="20sp"
-                tools:ignore="UsingOnClickInXml"/>
-
-            <TextView
-                android:id="@+id/monthYear"
-                android:layout_width="0dp"
-                android:layout_weight="2"
-                android:layout_height="wrap_content"
-                android:text="Dec 2024"
-                android:textSize="20sp"
-                android:textAlignment="center"
-                android:textColor="@color/black"/>
-
-            <Button
-                android:layout_weight="1.5"
-                android:layout_height="wrap_content"
-                android:layout_width="0dp"
-                android:text="@string/next"
-                android:textColor="@color/white"
-                android:background="@null"
-                android:textStyle="bold"
-                android:onClick="nextMontAction"
-                android:textSize="20sp"
-                tools:ignore="UsingOnClickInXml" />
-
-        </LinearLayout>
-
-        <LinearLayout
+        <Button
+            android:id="@+id/btnUpdateEvent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/sun"
-                android:textColor="@color/black"
-                android:textAlignment="center"
-                android:textSize="16sp"/>
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/mon"
-                android:textColor="@color/black"
-                android:textAlignment="center"
-                android:textSize="16sp"/>
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/tue"
-                android:textColor="@color/black"
-                android:textAlignment="center"
-                android:textSize="16sp"/>
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/wed"
-                android:textColor="@color/black"
-                android:textAlignment="center"
-                android:textSize="16sp"/>
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/thur"
-                android:textColor="@color/black"
-                android:textAlignment="center"
-                android:textSize="16sp"/>
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/fri"
-                android:textColor="@color/black"
-                android:textAlignment="center"
-                android:textSize="16sp"/>
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/sat"
-                android:textColor="@color/black"
-                android:textAlignment="center"
-                android:textSize="16sp"/>
-        </LinearLayout>
+            android:text="Cập nhật sự kiện" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/scheduleRecycleView"
+        <Button
+            android:id="@+id/btnDeleteEvent"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-
+            android:layout_height="wrap_content"
+            android:text="Xóa sự kiện" />
     </LinearLayout>
+    <Button
+        android:id="@+id/btnViewAllEvents"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Xem tất cả sự kiện" />
 </FrameLayout>
