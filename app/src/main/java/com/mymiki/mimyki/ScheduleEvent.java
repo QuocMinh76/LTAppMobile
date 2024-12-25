@@ -1,6 +1,9 @@
 package com.mymiki.mimyki;
 
 import android.media.metrics.Event;
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -18,6 +21,21 @@ public class ScheduleEvent {
         }
         return events;
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static ArrayList<ScheduleEvent> eventsForDateAndTime(LocalDate date, LocalTime time)
+    {
+        ArrayList<ScheduleEvent> events = new ArrayList<>();
+        for (ScheduleEvent event : eventsList)
+        {
+            int eventHour = event.time.getHour();
+            int cellHour = time.getHour();
+            if(event.getDate().equals(date) && eventHour == cellHour)
+                events.add(event);
+        }
+        return events;
+    }
+
     private String name;
     private LocalDate date;
     private LocalTime time;

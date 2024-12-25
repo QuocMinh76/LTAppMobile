@@ -41,14 +41,14 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleViewHolder> {
     public void onBindViewHolder(@NonNull ScheduleViewHolder holder, int position)
     {
         final LocalDate date = days.get(position);
-        if(date == null)
-            holder.daysOfMonth.setText("");
+        holder.daysOfMonth.setText(String.valueOf(date.getDayOfMonth()));
+        if(date.equals(ScheduleUtils.selectDate))
+            holder.parentSchedule.setBackgroundColor(Color.LTGRAY);
+
+        if (date.getMonth().equals(ScheduleUtils.selectDate.getMonth()))
+            holder.daysOfMonth.setTextColor(Color.BLACK);
         else
-        {
-            holder.daysOfMonth.setText(String.valueOf(date.getDayOfMonth()));
-            if(date.equals(ScheduleUtils.selectDate))
-                holder.parentSchedule.setBackgroundColor(Color.LTGRAY);
-        }
+            holder.daysOfMonth.setTextColor(Color.LTGRAY);
     }
 
     @Override
