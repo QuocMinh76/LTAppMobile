@@ -19,9 +19,9 @@
             android:text="WEEKLY"
             android:textColor="@color/cardview_light_background"
             android:textStyle="bold"
-            android:onClick="weeklyAction"
-            android:textSize="16sp"
-            tools:ignore="UsingOnClickInXml"/>
+            android:textSize="16sp"/>
+<!--            android:onClick="weeklyAction"-->
+<!--            tools:ignore="UsingOnClickInXml"/-->
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
