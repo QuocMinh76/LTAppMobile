@@ -1,5 +1,7 @@
 package com.mymiki.mimyki;
 
+import android.annotation.SuppressLint;
+import android.database.Cursor;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -7,6 +9,11 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CalendarView;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -15,12 +22,12 @@ import android.view.ViewGroup;
  */
 public class CalendarFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private CalendarView calendarView;
+    private TextView eventDetails;
+    private DatabaseHelper databaseHelper;
 
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
@@ -28,15 +35,6 @@ public class CalendarFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment CalendarFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static CalendarFragment newInstance(String param1, String param2) {
         CalendarFragment fragment = new CalendarFragment();
         Bundle args = new Bundle();
@@ -55,10 +53,91 @@ public class CalendarFragment extends Fragment {
         }
     }
 
+    @SuppressLint("Range")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_calendar, container, false);
+        View view = inflater.inflate(R.layout.fragment_calendar, container, false);
+
+        calendarView = view.findViewById(R.id.calendarView);
+        eventDetails = view.findViewById(R.id.eventDetails);
+        EditText inputEvent = view.findViewById(R.id.inputEvent);
+        Button btnAddEvent = view.findViewById(R.id.btnAddEvent);
+        Button btnUpdateEvent = view.findViewById(R.id.btnUpdateEvent);
+        Button btnDeleteEvent = view.findViewById(R.id.btnDeleteEvent);
+        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button btnViewAllEvents = view.findViewById(R.id.btnViewAllEvents); // Thêm nút xem tất cả sự kiện
+
+        databaseHelper = new DatabaseHelper(getContext());
+
+        final String[] selectedDate = {null};
+
+        calendarView.setOnDateChangeListener((view1, year, month, dayOfMonth) -> {
+            selectedDate[0] = year + "-" + (month + 1) + "-" + dayOfMonth;
+
+            // Hiển thị sự kiện của ngày đã chọn
+            Cursor cursor = databaseHelper.getEventsByDate(selectedDate[0]);
+            if (cursor != null && cursor.moveToFirst()) {
+                StringBuilder events = new StringBuilder();
+                do {
+                    events.append(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_EVENT))).append("\n");
+                } while (cursor.moveToNext());
+                eventDetails.setText(events.toString());
+            } else {
+                eventDetails.setText("Không có sự kiện nào.");
+            }
+            if (cursor != null) {
+                cursor.close();
+            }
+        });
+
+        btnAddEvent.setOnClickListener(v -> {
+            if (selectedDate[0] != null && !inputEvent.getText().toString().isEmpty()) {
+                databaseHelper.addEvent(selectedDate[0], inputEvent.getText().toString());
+                Toast.makeText(getContext(), "Thêm sự kiện thành công!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), "Hãy chọn ngày và nhập sự kiện!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btnUpdateEvent.setOnClickListener(v -> {
+            if (selectedDate[0] != null && !inputEvent.getText().toString().isEmpty()) {
+                databaseHelper.updateEvent(selectedDate[0], inputEvent.getText().toString());
+                Toast.makeText(getContext(), "Cập nhật sự kiện thành công!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), "Hãy chọn ngày và nhập sự kiện!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btnDeleteEvent.setOnClickListener(v -> {
+            if (selectedDate[0] != null) {
+                databaseHelper.deleteEvent(selectedDate[0]);
+                Toast.makeText(getContext(), "Xóa sự kiện thành công!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), "Hãy chọn ngày để xóa sự kiện!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Xử lý nút xem tất cả sự kiện
+        btnViewAllEvents.setOnClickListener(v -> {
+            Cursor cursor = databaseHelper.getAllEvents();
+            if (cursor != null && cursor.moveToFirst()) {
+                StringBuilder allEvents = new StringBuilder();
+                do {
+                    String date = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_DATE));
+                    String event = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_EVENT));
+                    allEvents.append("Date: ").append(date).append(" - Event: ").append(event).append("\n");
+                } while (cursor.moveToNext());
+
+                // Hiển thị danh sách sự kiện trong TextView hoặc Toast
+                eventDetails.setText(allEvents.toString());
+            } else {
+                Toast.makeText(getContext(), "Không có sự kiện nào trong cơ sở dữ liệu!", Toast.LENGTH_SHORT).show();
+            }
+            if (cursor != null) {
+                cursor.close();
+            }
+        });
+
+        return view;
     }
 }
