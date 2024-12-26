@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new TaskFragment()).commit();
         }
+
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener navListener =
@@ -51,8 +52,6 @@ public class MainActivity extends AppCompatActivity {
                     } else if (item.getItemId() == R.id.nav_setting) {
                         selectedFragment = new SettingFragment();
                     }
-
-
                     getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
                     return true;
                 }
