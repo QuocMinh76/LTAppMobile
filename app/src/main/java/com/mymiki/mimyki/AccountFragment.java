@@ -1,6 +1,8 @@
 package com.mymiki.mimyki;
 
 import android.content.Intent;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 
@@ -24,7 +26,7 @@ public class AccountFragment extends Fragment {
     private TextView tvPremiumStatus;
     private Button btnUpdate, btnDelete, btnLogout, btnBuyPremium;
     private DatabaseHelper dbHelper;
-    private int userId;
+    private int userId = -1; //default = -1: Không tìm thấy
     private boolean isPremium;
 
     @Override
@@ -49,12 +51,14 @@ public class AccountFragment extends Fragment {
 
         dbHelper = new DatabaseHelper(requireContext());
 
-        // Lấy userId từ Activity (giả sử được truyền qua Intent hoặc SharedPreferences)
-        Bundle arguments = getArguments();
-        if (arguments != null) {
-            userId = arguments.getInt("USER_ID", -1);
-        }
+        userId = getUserIdFromSharedPreferences(); //Lấy id bằng SharedPreferences
 
+        // Lấy userId từ Activity (giả sử được truyền qua Intent hoặc SharedPreferences)
+//        Bundle arguments = getArguments(); // Kết quả debug: argument đang bị rỗng nên không gán user_id được
+//        if (arguments != null) {
+//            userId = arguments.getInt("USER_ID", -1);
+//        }
+//
         if (userId != -1) {
             loadUserData(userId);
         } else {
@@ -99,28 +103,36 @@ public class AccountFragment extends Fragment {
             isPremium = true;
             updatePremiumUI();
         });
+
+        swPremium.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            isPremium = isChecked; // Update state
+            updatePremiumUI(); // Reflect changes in UI
+        });
     }
 
     // Tải dữ liệu người dùng từ SQLite
     private void loadUserData(int userId) {
-        Cursor cursor = dbHelper.getAllUsers();
-        if (cursor.moveToFirst()) {
-            do {
-                int id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_ID_TABLE));
-                if (id == userId) {
-                    String name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_NAME));
-                    String username = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USERNAME));
-                    isPremium = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_IS_PREMIUM)) == 1;
+        Cursor cursor = dbHelper.getReadableDatabase().query(
+                DatabaseHelper.TABLE_USER,
+                null,
+                DatabaseHelper.COLUMN_USER_ID_TABLE + " = ?",
+                new String[]{String.valueOf(userId)},
+                null, null, null);
 
-                    etName.setText(name);
-                    etUsername.setText(username);
-                    swPremium.setChecked(isPremium);
-                    updatePremiumUI();
-                    break;
-                }
-            } while (cursor.moveToNext());
+        if (cursor != null && cursor.moveToFirst()) {
+            String name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_NAME));
+            String username = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USERNAME));
+            isPremium = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_IS_PREMIUM)) == 1;
+
+            etName.setText(name);
+            etUsername.setText(username);
+            swPremium.setChecked(isPremium);
+            updatePremiumUI();
         }
-        cursor.close();
+
+        if (cursor != null) {
+            cursor.close();
+        }
     }
 
     // Cập nhật giao diện Premium
@@ -132,5 +144,10 @@ public class AccountFragment extends Fragment {
             tvPremiumStatus.setVisibility(View.GONE);
             btnBuyPremium.setVisibility(View.VISIBLE);
         }
+    }
+
+    private int getUserIdFromSharedPreferences() {
+        SharedPreferences sharedPref = getActivity().getSharedPreferences("com.example.myapp.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE);
+        return sharedPref.getInt("user_id", -1);
     }
 }
