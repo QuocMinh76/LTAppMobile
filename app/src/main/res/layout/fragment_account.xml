@@ -1,0 +1,70 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/etName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Tên đầy đủ" />
+
+        <EditText
+            android:id="@+id/etUsername"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Tên đăng nhập" />
+
+        <Switch
+            android:id="@+id/swPremium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Premium"
+            android:enabled="false" />
+
+        <TextView
+            android:id="@+id/tvPremiumStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Bạn là người dùng cao cấp"
+            android:textColor="@android:color/holo_blue_dark"
+            android:visibility="gone"
+            android:gravity="center"
+            android:layout_marginTop="10dp"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/btnBuyPremium"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Mua Premium"
+            android:layout_marginTop="10dp" />
+
+        <Button
+            android:id="@+id/btnUpdate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cập nhật thông tin"
+            android:layout_marginTop="10dp" />
+
+        <Button
+            android:id="@+id/btnDelete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Xóa tài khoản"
+            android:textColor="@android:color/holo_red_dark"
+            android:layout_marginTop="10dp" />
+
+        <Button
+            android:id="@+id/btnLogout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Đăng xuất"
+            android:layout_marginTop="10dp" />
+    </LinearLayout>
+</ScrollView>
