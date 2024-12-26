@@ -55,19 +55,34 @@ public class CalendarFragment extends Fragment {
 
     @SuppressLint("Range")
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_calendar, container, false);
 
         calendarView = view.findViewById(R.id.calendarView);
         eventDetails = view.findViewById(R.id.eventDetails);
-        EditText inputEvent = view.findViewById(R.id.inputEvent);
+        EditText inputEventName = view.findViewById(R.id.inputEventName);
+        EditText inputEventDescription = view.findViewById(R.id.inputEventDescription);
+        EditText inputStartTime = view.findViewById(R.id.inputStartTime);
+        EditText inputEndTime = view.findViewById(R.id.inputEndTime);
         Button btnAddEvent = view.findViewById(R.id.btnAddEvent);
         Button btnUpdateEvent = view.findViewById(R.id.btnUpdateEvent);
         Button btnDeleteEvent = view.findViewById(R.id.btnDeleteEvent);
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button btnViewAllEvents = view.findViewById(R.id.btnViewAllEvents); // Thêm nút xem tất cả sự kiện
+        Button btnViewAllEvents = view.findViewById(R.id.btnViewAllEvents);
 
         databaseHelper = new DatabaseHelper(getContext());
+        // Add Users
+        databaseHelper.addUser("Alice", "alice123", "pass123", false);  // User Alice, not an admin
+        databaseHelper.addUser("Bob", "bob456", "pass456", true);       // User Bob, is an admin
+
+        // Add Categories
+        databaseHelper.addCategory("Work", 1);      // Category Work for User 1 (Alice)
+        databaseHelper.addCategory("Personal", 1);  // Category Personal for User 1 (Alice)
+        databaseHelper.addCategory("Meetings", 2);  // Category Meetings for User 2 (Bob)
+
+        // Add Events
+        databaseHelper.addEvent("Team Meeting", "Discuss Q4 goals", "2024-12-27 10:00", "Office Room A", "High", 3, 2);
+        databaseHelper.addEvent("Doctor Appointment", "Annual checkup", "2024-12-28 14:30", "City Hospital", "Medium", 2, 1);
+        databaseHelper.addEvent("Grocery Shopping", "Weekly groceries", "2024-12-29 16:00", "Supermarket", "Low", 2, 1);
 
         final String[] selectedDate = {null};
 
@@ -79,59 +94,91 @@ public class CalendarFragment extends Fragment {
             if (cursor != null && cursor.moveToFirst()) {
                 StringBuilder events = new StringBuilder();
                 do {
-                    events.append(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_EVENT))).append("\n");
+                    String eventName = cursor.getString(cursor.getColumnIndex("EventName"));
+                    String eventDescription = cursor.getString(cursor.getColumnIndex("EventDescription"));
+                    String startTime = cursor.getString(cursor.getColumnIndex("StartTime"));
+                    String endTime = cursor.getString(cursor.getColumnIndex("EndTime"));
+                    events.append("Name: ").append(eventName).append("\n")
+                            .append("Description: ").append(eventDescription).append("\n")
+                            .append("Start: ").append(startTime).append(" - End: ").append(endTime).append("\n\n");
                 } while (cursor.moveToNext());
                 eventDetails.setText(events.toString());
             } else {
-                eventDetails.setText("Không có sự kiện nào.");
+                eventDetails.setText("No events for the selected date.");
             }
             if (cursor != null) {
                 cursor.close();
             }
+
+
+
         });
 
-        btnAddEvent.setOnClickListener(v -> {
-            if (selectedDate[0] != null && !inputEvent.getText().toString().isEmpty()) {
-                databaseHelper.addEvent(selectedDate[0], inputEvent.getText().toString());
-                Toast.makeText(getContext(), "Thêm sự kiện thành công!", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(getContext(), "Hãy chọn ngày và nhập sự kiện!", Toast.LENGTH_SHORT).show();
-            }
-        });
+//        btnAddEvent.setOnClickListener(v -> {
+//            if (selectedDate[0] != null && !inputEventName.getText().toString().isEmpty() &&
+//                    !inputStartTime.getText().toString().isEmpty() && !inputEndTime.getText().toString().isEmpty()) {
+//
+//                long result = databaseHelper.addEvent(selectedDate[0],
+//                        inputEventName.getText().toString(),
+//                        inputEventDescription.getText().toString(),
+//                        inputStartTime.getText().toString(),
+//                        inputEndTime.getText().toString());
+//
+//                if (result != -1) {
+//                    Toast.makeText(getContext(), "Event added successfully!", Toast.LENGTH_SHORT).show();
+//                } else {
+//                    Toast.makeText(getContext(), "Error adding event!", Toast.LENGTH_SHORT).show();
+//                }
+//            } else {
+//                Toast.makeText(getContext(), "Please fill in all fields!", Toast.LENGTH_SHORT).show();
+//            }
+//        });
 
-        btnUpdateEvent.setOnClickListener(v -> {
-            if (selectedDate[0] != null && !inputEvent.getText().toString().isEmpty()) {
-                databaseHelper.updateEvent(selectedDate[0], inputEvent.getText().toString());
-                Toast.makeText(getContext(), "Cập nhật sự kiện thành công!", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(getContext(), "Hãy chọn ngày và nhập sự kiện!", Toast.LENGTH_SHORT).show();
-            }
-        });
+//        btnUpdateEvent.setOnClickListener(v -> {
+//            if (selectedDate[0] != null && !inputEventName.getText().toString().isEmpty() &&
+//                    !inputStartTime.getText().toString().isEmpty() && !inputEndTime.getText().toString().isEmpty()) {
+//
+//                boolean isUpdated = databaseHelper.updateEvent(selectedDate[0],
+//                        inputEventName.getText().toString(),
+//                        inputEventDescription.getText().toString(),
+//                        inputStartTime.getText().toString(),
+//                        inputEndTime.getText().toString());
+//
+//                if (isUpdated) {
+//                    Toast.makeText(getContext(), "Event updated successfully!", Toast.LENGTH_SHORT).show();
+//                } else {
+//                    Toast.makeText(getContext(), "Error updating event!", Toast.LENGTH_SHORT).show();
+//                }
+//            } else {
+//                Toast.makeText(getContext(), "Please fill in all fields!", Toast.LENGTH_SHORT).show();
+//            }
+//        });
 
-        btnDeleteEvent.setOnClickListener(v -> {
-            if (selectedDate[0] != null) {
-                databaseHelper.deleteEvent(selectedDate[0]);
-                Toast.makeText(getContext(), "Xóa sự kiện thành công!", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(getContext(), "Hãy chọn ngày để xóa sự kiện!", Toast.LENGTH_SHORT).show();
-            }
-        });
+//        btnDeleteEvent.setOnClickListener(v -> {
+//            if (selectedDate[0] != null) {
+//                boolean isDeleted = databaseHelper.deleteEventByDate(selectedDate[0]);
+//                if (isDeleted) {
+//                    Toast.makeText(getContext(), "Event deleted successfully!", Toast.LENGTH_SHORT).show();
+//                } else {
+//                    Toast.makeText(getContext(), "Error deleting event!", Toast.LENGTH_SHORT).show();
+//                }
+//            } else {
+//                Toast.makeText(getContext(), "Please select a date!", Toast.LENGTH_SHORT).show();
+//            }
+//        });
 
-        // Xử lý nút xem tất cả sự kiện
         btnViewAllEvents.setOnClickListener(v -> {
             Cursor cursor = databaseHelper.getAllEvents();
             if (cursor != null && cursor.moveToFirst()) {
                 StringBuilder allEvents = new StringBuilder();
                 do {
-                    String date = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_DATE));
-                    String event = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_EVENT));
-                    allEvents.append("Date: ").append(date).append(" - Event: ").append(event).append("\n");
+                    String date = cursor.getString(cursor.getColumnIndex("EventDate"));
+                    String eventName = cursor.getString(cursor.getColumnIndex("EventName"));
+                    allEvents.append("Date: ").append(date).append(" - Name: ").append(eventName).append("\n");
                 } while (cursor.moveToNext());
-
-                // Hiển thị danh sách sự kiện trong TextView hoặc Toast
                 eventDetails.setText(allEvents.toString());
             } else {
-                Toast.makeText(getContext(), "Không có sự kiện nào trong cơ sở dữ liệu!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "No events in the database!", Toast.LENGTH_SHORT).show();
             }
             if (cursor != null) {
                 cursor.close();
@@ -140,4 +187,5 @@ public class CalendarFragment extends Fragment {
 
         return view;
     }
+
 }
