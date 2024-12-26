@@ -3,55 +3,86 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CalendarFragment">
+    tools:context=".CalendarFragment"
+    android:background="@color/white">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="wrap_content">
 
-        <CalendarView
-            android:id="@+id/calendarView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/eventDetails"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Chọn một ngày để xem sự kiện"
-            android:padding="8dp"
-            android:textSize="16sp" />
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <EditText
-            android:id="@+id/inputEvent"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Nhập sự kiện"
-            android:inputType="text" />
+            <CalendarView
+                android:id="@+id/calendarView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
-        <Button
-            android:id="@+id/btnAddEvent"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Thêm sự kiện" />
+            <TextView
+                android:id="@+id/eventDetails"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Chọn một ngày để xem sự kiện"
+                android:padding="8dp"
+                android:textSize="16sp" />
 
-        <Button
-            android:id="@+id/btnUpdateEvent"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Cập nhật sự kiện" />
+            <EditText
+                android:id="@+id/inputEventName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Nhập tên sự kiện"
+                android:inputType="text" />
 
-        <Button
-            android:id="@+id/btnDeleteEvent"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Xóa sự kiện" />
-    </LinearLayout>
-    <Button
-        android:id="@+id/btnViewAllEvents"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Xem tất cả sự kiện" />
+            <EditText
+                android:id="@+id/inputEventDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Nhập mô tả sự kiện"
+                android:inputType="text" />
+
+            <EditText
+                android:id="@+id/inputStartTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Nhập thời gian bắt đầu (HH:mm)"
+                android:inputType="time" />
+
+            <EditText
+                android:id="@+id/inputEndTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Nhập thời gian kết thúc (HH:mm)"
+                android:inputType="time" />
+
+            <Button
+                android:id="@+id/btnAddEvent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Thêm sự kiện" />
+
+            <Button
+                android:id="@+id/btnUpdateEvent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Cập nhật sự kiện" />
+
+            <Button
+                android:id="@+id/btnDeleteEvent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Xóa sự kiện" />
+
+            <Button
+                android:id="@+id/btnViewAllEvents"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Xem tất cả sự kiện" />
+
+        </LinearLayout>
+    </ScrollView>
+
 </FrameLayout>
+
