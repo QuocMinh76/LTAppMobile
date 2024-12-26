@@ -70,6 +70,8 @@ public class CalendarFragment extends Fragment {
         Button btnViewAllEvents = view.findViewById(R.id.btnViewAllEvents);
 
         databaseHelper = new DatabaseHelper(getContext());
+        //databaseHelper.clearDatabase(); //xoa database
+
         // Add Users
         databaseHelper.addUser("Alice", "alice123", "pass123", false);  // User Alice, not an admin
         databaseHelper.addUser("Bob", "bob456", "pass456", true);       // User Bob, is an admin
@@ -167,25 +169,24 @@ public class CalendarFragment extends Fragment {
 //            }
 //        });
 
-        btnViewAllEvents.setOnClickListener(v -> {
-            Cursor cursor = databaseHelper.getAllEvents();
-            if (cursor != null && cursor.moveToFirst()) {
-                StringBuilder allEvents = new StringBuilder();
-                do {
-                    String date = cursor.getString(cursor.getColumnIndex("EventDate"));
-                    String eventName = cursor.getString(cursor.getColumnIndex("EventName"));
-                    allEvents.append("Date: ").append(date).append(" - Name: ").append(eventName).append("\n");
-                } while (cursor.moveToNext());
-                eventDetails.setText(allEvents.toString());
-            } else {
-                Toast.makeText(getContext(), "No events in the database!", Toast.LENGTH_SHORT).show();
-            }
-            if (cursor != null) {
-                cursor.close();
-            }
-        });
-
+//        btnViewAllEvents.setOnClickListener(v -> {
+//            Cursor cursor = databaseHelper.getAllEvents();
+//            if (cursor != null && cursor.moveToFirst()) {
+//                StringBuilder allEvents = new StringBuilder();
+//                do {
+//                    String date = cursor.getString(cursor.getColumnIndex("EventDate"));
+//                    String eventName = cursor.getString(cursor.getColumnIndex("EventName"));
+//                    allEvents.append("Date: ").append(date).append(" - Name: ").append(eventName).append("\n");
+//                } while (cursor.moveToNext());
+//                eventDetails.setText(allEvents.toString());
+//            } else {
+//                Toast.makeText(getContext(), "No events in the database!", Toast.LENGTH_SHORT).show();
+//            }
+//            if (cursor != null) {
+//                cursor.close();
+//            }
+//        });
+//
         return view;
     }
-
 }

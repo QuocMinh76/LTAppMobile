@@ -8,9 +8,12 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 public class DatabaseHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 2; // Tăng phiên bản khi thay đổi cấu trúc DB
-    private static final String DATABASE_NAME = "schedule.db";
+    private static final int DATABASE_VERSION = 4; // Tăng phiên bản khi thay đổi cấu trúc DB
+    private static final String DATABASE_NAME = "todo.db";
 
     // Bảng events
     public static final String TABLE_EVENTS = "events";
@@ -55,7 +58,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // Tạo bảng category
         String CREATE_CATEGORY_TABLE = "CREATE TABLE " + TABLE_CATEGORY + " ("
                 + COLUMN_CATEGORY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + COLUMN_CATEGORY_NAME + " TEXT, "
+                + COLUMN_CATEGORY_NAME + " TEXT UNIQUE, "
                 + COLUMN_CATEGORY_USER_ID + " INTEGER, "
                 + "FOREIGN KEY(" + COLUMN_CATEGORY_USER_ID + ") REFERENCES " + TABLE_USER + "(" + COLUMN_USER_ID_TABLE + "))";
         db.execSQL(CREATE_CATEGORY_TABLE);
@@ -76,7 +79,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
+//    //xoa database
+//    public void clearDatabase() {
+//        SQLiteDatabase db = this.getWritableDatabase();
+//        db.execSQL("DELETE FROM ten_bang"); // Xóa tất cả dữ liệu trong bảng
+//        db.execSQL("DROP TABLE IF EXISTS events");
+//        db.execSQL("DROP TABLE IF EXISTS category");
+//        db.execSQL("DROP TABLE IF EXISTS user");
+//        db.close();
+//    }
 
+    //tao
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Xóa bảng cũ nếu có thay đổi
@@ -84,17 +97,73 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORY);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER);
         onCreate(db);
+    }
 
+    public String hashPassword(String password) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(password.getBytes());
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) {
+                    hexString.append('0');
+                }
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error hashing password", e);
+        }
+    }
 
+    //xác thực khi đăng nhập (pass data và pass nhập vào)
+    public boolean authenticateUser(String username, String password) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Truy vấn mật khẩu đã băm từ cơ sở dữ liệu
+        String query = "SELECT " + COLUMN_PASSWORD + " FROM " + TABLE_USER + " WHERE " + COLUMN_USERNAME + " = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{username});
+
+        if (cursor != null && cursor.moveToFirst()) {
+            String storedHashedPassword = cursor.getString(0); // Mật khẩu đã băm
+            cursor.close();
+
+            // Băm mật khẩu người dùng nhập vào
+            String hashedPassword = hashPassword(password);
+
+            // So sánh mật khẩu đã băm
+            return storedHashedPassword.equals(hashedPassword);
+        }
+
+        if (cursor != null) {
+            cursor.close();
+        }
+        return false; // Không tìm thấy người dùng
+    }
+
+    // Hàm xử lý đăng nhập
+    public boolean login(String username, String password) {
+        if (authenticateUser(username, password)) {
+            // Đăng nhập thành công
+            return true;
+        } else {
+            // Thông báo lỗi: Sai tên đăng nhập hoặc mật khẩu
+            return false;
+        }
     }
 
     // Thêm người dùng
     public void addUser(String name, String username, String password, boolean isPremium) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
+
+        // Băm mật khẩu trước khi lưu
+        String hashedPassword = hashPassword(password);
+
         values.put(COLUMN_USER_NAME, name);
         values.put(COLUMN_USERNAME, username);
-        values.put(COLUMN_PASSWORD, password);
+        values.put(COLUMN_PASSWORD, hashedPassword);
         values.put(COLUMN_IS_PREMIUM, isPremium ? 1 : 0);
         db.insert(TABLE_USER, null, values);
         db.close();
@@ -204,6 +273,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String[] selectionArgs = new String[]{date + "%"};  // Dùng ký tự '%' để tìm kiếm ngày cụ thể
         return db.query(TABLE_EVENTS, null, selection, selectionArgs, null, null, null);
     }
+
 }
 
 
