@@ -10,7 +10,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 5; // Tăng phiên bản khi thay đổi cấu trúc DB
+    private static final int DATABASE_VERSION = 6; // Tăng phiên bản khi thay đổi cấu trúc DB
     private static final String DATABASE_NAME = "todo.db";
 
     // Bảng events
@@ -77,15 +77,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-//    //xoa database
-//    public void clearDatabase() {
-//        SQLiteDatabase db = this.getWritableDatabase();
-//        db.execSQL("DELETE FROM ten_bang"); // Xóa tất cả dữ liệu trong bảng
-//        db.execSQL("DROP TABLE IF EXISTS events");
-//        db.execSQL("DROP TABLE IF EXISTS category");
-//        db.execSQL("DROP TABLE IF EXISTS user");
-//        db.close();
-//    }
+    //xoa database
+    public void clearDatabase() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DROP TABLE IF EXISTS events");
+        db.execSQL("DROP TABLE IF EXISTS category");
+        db.execSQL("DROP TABLE IF EXISTS user");
+        db.close();
+    }
 
     //tao
     @Override

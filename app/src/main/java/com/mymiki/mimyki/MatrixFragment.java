@@ -1,5 +1,7 @@
 package com.mymiki.mimyki;
 
+import static com.mymiki.mimyki.DatabaseHelper.COLUMN_IS_PREMIUM;
+
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.ClipData;
@@ -80,7 +82,7 @@ public class MatrixFragment extends Fragment {
     private boolean isUserPremium() {
         Cursor cursor = dbHelper.getAllUsers();
         if (cursor != null && cursor.moveToFirst()) {
-            boolean isPremium = cursor.getInt(cursor.getColumnIndex("is_premium")) == 1;
+            boolean isPremium = cursor.getColumnIndex(COLUMN_IS_PREMIUM) == 1;
             cursor.close();
             return isPremium;
         }
