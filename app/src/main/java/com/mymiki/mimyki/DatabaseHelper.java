@@ -21,6 +21,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_DESCRIPTION = "description";
     public static final String COLUMN_DATETIME = "datetime";
     public static final String COLUMN_LOCATION = "location";
+    public static final String COLUMN_EVENT_DONE = "is_done";
     public static final String COLUMN_PRIORITY_TAG = "priority_tag";
     public static final String COLUMN_CATE_ID = "cate_id";
     public static final String COLUMN_USER_ID = "user_id";
@@ -69,6 +70,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_DESCRIPTION + " TEXT, "
                 + COLUMN_DATETIME + " TEXT, "
                 + COLUMN_LOCATION + " TEXT, "
+                + COLUMN_EVENT_DONE + " INTEGER DEFAULT 0, "
                 + COLUMN_PRIORITY_TAG + " TEXT DEFAULT 'Khác', "
                 + COLUMN_CATE_ID + " INTEGER, "
                 + COLUMN_USER_ID + " INTEGER, "
@@ -223,13 +225,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Thêm sự kiện
-    public void addEvent(String event, String description, String datetime, String location, String priorityTag, int cateId, int userId) {
+    public void addEvent(String event, String description, String datetime, String location, boolean isDone, String priorityTag, int cateId, int userId) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_EVENT_NAME, event);
         values.put(COLUMN_DESCRIPTION, description);
         values.put(COLUMN_DATETIME, datetime);
         values.put(COLUMN_LOCATION, location);
+        values.put(COLUMN_EVENT_DONE, isDone);
         values.put(COLUMN_PRIORITY_TAG, priorityTag);
         values.put(COLUMN_CATE_ID, cateId);
         values.put(COLUMN_USER_ID, userId);
@@ -244,12 +247,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Sửa sự kiện
-    public void updateEvent(int eventId, String event, String description, String datetime, String location, String priorityTag) {
+    public void updateEvent(int eventId, String event, String description, String datetime, String location, boolean isDone, String priorityTag) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_EVENT_NAME, event);
         values.put(COLUMN_DESCRIPTION, description);
         values.put(COLUMN_DATETIME, datetime);
+        values.put(COLUMN_EVENT_DONE, isDone);
         values.put(COLUMN_LOCATION, location);
         values.put(COLUMN_PRIORITY_TAG, priorityTag);
         db.update(TABLE_EVENTS, values, COLUMN_EVENT_ID + " = ?", new String[]{String.valueOf(eventId)});
@@ -348,6 +352,48 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public Cursor getAllCategories(int userId) {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("SELECT * FROM category WHERE user_id = ?", new String[]{String.valueOf(userId)});
+    }
+
+    // Lấy danh sách category theo user_id
+    public Cursor getCategoriesByUserId(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selection = COLUMN_CATEGORY_USER_ID + " = ?";
+        String[] selectionArgs = {String.valueOf(userId)};
+        return db.query(TABLE_CATEGORY, null, selection, selectionArgs, null, null, null);
+    }
+
+    // Lấy danh sách sự kiện theo user_id
+    public Cursor getEventsByUserId(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selection = COLUMN_USER_ID + " = ?";
+        String[] selectionArgs = {String.valueOf(userId)};
+        return db.query(TABLE_EVENTS, null, selection, selectionArgs, null, null, null);
+    }
+
+    // Lấy danh sách sự kiện theo category_id
+    public Cursor getEventsByCategoryId(int categoryId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selection = COLUMN_CATE_ID + " = ?";
+        String[] selectionArgs = {String.valueOf(categoryId)};
+        return db.query(TABLE_EVENTS, null, selection, selectionArgs, null, null, null);
+    }
+
+    public void updateTaskDoneStatus(int taskId, boolean isDone) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_EVENT_DONE, isDone ? 1 : 0);
+        db.update(TABLE_EVENTS, values, COLUMN_EVENT_ID + " = ?", new String[]{String.valueOf(taskId)});
+    }
+
+    public int getLastInsertedEventId() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT last_insert_rowid()", null);
+        if (cursor != null && cursor.moveToFirst()) {
+            int eventId = cursor.getInt(0);
+            cursor.close();
+            return eventId;
+        }
+        return -1;  // Return -1 if no event ID is found
     }
 
 }

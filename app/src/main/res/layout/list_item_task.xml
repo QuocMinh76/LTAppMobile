@@ -18,7 +18,6 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:text="Task Description"
-        android:textColor="#FFFFFF"
         android:textSize="14sp"
         android:layout_marginStart="8dp" />
 
