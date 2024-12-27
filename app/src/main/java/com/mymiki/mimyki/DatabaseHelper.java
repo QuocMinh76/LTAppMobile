@@ -1,5 +1,6 @@
 package com.mymiki.mimyki;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -10,7 +11,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 6; // Tăng phiên bản khi thay đổi cấu trúc DB
+    private static final int DATABASE_VERSION = 5; // Tăng phiên bản khi thay đổi cấu trúc DB
     private static final String DATABASE_NAME = "todo.db";
 
     // Bảng events
@@ -56,7 +57,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // Tạo bảng category
         String CREATE_CATEGORY_TABLE = "CREATE TABLE " + TABLE_CATEGORY + " ("
                 + COLUMN_CATEGORY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + COLUMN_CATEGORY_NAME + " TEXT UNIQUE, "
+                + COLUMN_CATEGORY_NAME + " TEXT, "
                 + COLUMN_CATEGORY_USER_ID + " INTEGER, "
                 + "FOREIGN KEY(" + COLUMN_CATEGORY_USER_ID + ") REFERENCES " + TABLE_USER + "(" + COLUMN_USER_ID_TABLE + "))";
         db.execSQL(CREATE_CATEGORY_TABLE);
@@ -77,14 +78,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    //xoa database
-    public void clearDatabase() {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DROP TABLE IF EXISTS events");
-        db.execSQL("DROP TABLE IF EXISTS category");
-        db.execSQL("DROP TABLE IF EXISTS user");
-        db.close();
-    }
+//    //xoa database
+//    public void clearDatabase() {
+//        SQLiteDatabase db = this.getWritableDatabase();
+//        db.execSQL("DELETE FROM ten_bang"); // Xóa tất cả dữ liệu trong bảng
+//        db.execSQL("DROP TABLE IF EXISTS events");
+//        db.execSQL("DROP TABLE IF EXISTS category");
+//        db.execSQL("DROP TABLE IF EXISTS user");
+//        db.close();
+//    }
 
     //tao
     @Override
@@ -262,12 +264,63 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public Cursor getEventsByDate(String date) {
+    public Cursor getEventsByDate(String selectedDate) {
         SQLiteDatabase db = this.getReadableDatabase();
-        // Chọn các sự kiện có ngày trùng với ngày được chọn
-        String selection = COLUMN_DATETIME + " LIKE ?";
-        String[] selectionArgs = new String[]{date + "%"};  // Dùng ký tự '%' để tìm kiếm ngày cụ thể
-        return db.query(TABLE_EVENTS, null, selection, selectionArgs, null, null, null);
+        return db.query(
+                TABLE_EVENTS, // Tên bảng sự kiện
+                null,
+                "DATE(" + COLUMN_DATETIME + ") = ?",
+                new String[]{selectedDate},
+                null, null, null
+        );
+    }
+
+    public Cursor getCategoriesByUser(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query(
+                TABLE_CATEGORY, // Tên bảng
+                null, // Lấy tất cả các cột
+                COLUMN_USER_ID + " = ?", // Điều kiện WHERE
+                new String[]{String.valueOf(userId)}, // Giá trị của điều kiện WHERE
+                null, // GROUP BY
+                null, // HAVING
+                null // ORDER BY
+        );
+    }
+
+    public Cursor getEventById(int eventId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query(
+                TABLE_EVENTS, // Tên bảng
+                null, // Lấy tất cả các cột
+                COLUMN_EVENT_ID + " = ?", // Điều kiện WHERE
+                new String[]{String.valueOf(eventId)}, // Giá trị của điều kiện WHERE
+                null, // GROUP BY
+                null, // HAVING
+                null // ORDER BY
+        );
+    }
+
+    public int getCategoryIdByName(String categoryName, int currentUserId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(
+                TABLE_CATEGORY, // Tên bảng
+                new String[]{COLUMN_CATEGORY_ID}, // Chỉ lấy cột categoryId
+                COLUMN_CATEGORY_NAME + " = ?", // Điều kiện WHERE
+                new String[]{categoryName}, // Giá trị của điều kiện WHERE
+                null, // GROUP BY
+                null, // HAVING
+                null // ORDER BY
+        );
+
+        if (cursor != null && cursor.moveToFirst()) {
+            @SuppressLint("Range") int categoryId = cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID));
+            cursor.close();
+            return categoryId;
+        }
+
+        // Trả về giá trị mặc định nếu không tìm thấy
+        return -1;
     }
 
 }
