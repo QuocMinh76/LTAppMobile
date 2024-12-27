@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:text="Thêm sự kiện mới"
+            android:textSize="20sp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/listview_background"
+            android:textAlignment="center"
+            android:paddingTop="5dp"
+            android:textColor="@color/black"/>
+        <EditText
+            android:id="@+id/eventNameInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Tên sự kiện"
+            android:height="50dp"/>
+
+        <EditText
+            android:id="@+id/descriptionInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Mô tả"
+            android:height="50dp"/>
+
+        <Button
+            android:id="@+id/timeInput"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:text="Chọn giờ"
+            android:layout_marginLeft="90dp"
+            android:height="50dp"/>
+
+        <EditText
+            android:id="@+id/locationInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Địa điểm"
+            android:height="50dp"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:layout_marginTop="10dp"
+            android:text="Loại sự kiện: "></TextView>
+        <Spinner
+            android:id="@+id/categorySpinner"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:height="100dp"
+            android:layout_marginTop="10dp"
+            android:paddingLeft="15dp"
+            android:background="@drawable/viewpaper_bkg"/>
+    </LinearLayout>
+</ScrollView>
