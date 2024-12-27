@@ -5,7 +5,9 @@ import static com.mymiki.mimyki.DatabaseHelper.COLUMN_IS_PREMIUM;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.ClipData;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Build;
@@ -35,6 +37,8 @@ public class MatrixFragment extends Fragment {
     ListView listQuadrant1, listQuadrant2, listQuadrant3, listQuadrant4;
     ArrayList<String> quadrant1Tasks, quadrant2Tasks, quadrant3Tasks, quadrant4Tasks;
     ArrayAdapter<String> quadrant1Adapter, quadrant2Adapter, quadrant3Adapter, quadrant4Adapter;
+
+    private int user_id = -1;
 
     private DatabaseHelper dbHelper;
 
@@ -69,6 +73,8 @@ public class MatrixFragment extends Fragment {
         listQuadrant3.setAdapter(quadrant3Adapter);
         listQuadrant4.setAdapter(quadrant4Adapter);
 
+        user_id = getUserIdFromSharedPreferences();
+
         // Kiểm tra quyền Premium
         if (!isUserPremium()) {
             showCoverFragment();
@@ -80,9 +86,15 @@ public class MatrixFragment extends Fragment {
     }
 
     private boolean isUserPremium() {
-        Cursor cursor = dbHelper.getAllUsers();
+        Cursor cursor = dbHelper.getReadableDatabase().query(
+                DatabaseHelper.TABLE_USER,
+                null,
+                DatabaseHelper.COLUMN_USER_ID_TABLE + " = ?",
+                new String[]{String.valueOf(user_id)},
+                null, null, null);
+
         if (cursor != null && cursor.moveToFirst()) {
-            boolean isPremium = cursor.getColumnIndex(COLUMN_IS_PREMIUM) == 1;
+            boolean isPremium = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_IS_PREMIUM)) == 1;
             cursor.close();
             return isPremium;
         }
@@ -234,5 +246,10 @@ public class MatrixFragment extends Fragment {
         btnCancel.setOnClickListener(v -> dialog.dismiss());
 
         dialog.show();
+    }
+
+    private int getUserIdFromSharedPreferences() {
+        SharedPreferences sharedPref = getActivity().getSharedPreferences("com.example.myapp.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE);
+        return sharedPref.getInt("user_id", -1);
     }
 }
