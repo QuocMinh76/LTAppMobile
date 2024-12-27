@@ -2,6 +2,7 @@ package com.mymiki.mimyki;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,11 @@ import androidx.fragment.app.Fragment;
 
 public class CoverFragment extends Fragment {
 
+    String username;
+    String name;
+    boolean isPremium;
+
+
     private DatabaseHelper dbHelper;
     private int currentUserId = -1; // Giả định ID người dùng hiện tại là 1
 
@@ -24,17 +30,18 @@ public class CoverFragment extends Fragment {
         dbHelper = new DatabaseHelper(context);
     }
 
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_cover, container, false);
 
         currentUserId = getUserIdFromSharedPreferences();
-
+        loadUserData(currentUserId);
         Button btnBuyPremium = view.findViewById(R.id.btn_buy_premium);
         btnBuyPremium.setOnClickListener(v -> {
-            // Cập nhật thông tin Premium trong SQLite
-            dbHelper.updateUser(currentUserId, "Tên người dùng", "username", true);
+//            // Cập nhật thông tin Premium trong SQLite
+            dbHelper.updateUser(currentUserId, name, username, true);
             Toast.makeText(getContext(), "Nâng cấp Premium thành công!", Toast.LENGTH_SHORT).show();
 
             // Loại bỏ CoverFragment
@@ -43,6 +50,26 @@ public class CoverFragment extends Fragment {
 
         return view;
     }
+
+    private void loadUserData(int userId) {
+        Cursor cursor = dbHelper.getReadableDatabase().query(
+                DatabaseHelper.TABLE_USER,
+                null,
+                DatabaseHelper.COLUMN_USER_ID_TABLE + " = ?",
+                new String[]{String.valueOf(userId)},
+                null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_NAME));
+            username = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USERNAME));
+            isPremium = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_IS_PREMIUM)) == 1;
+        }
+
+        if (cursor != null) {
+            cursor.close();
+        }
+    }
+
 
     private int getUserIdFromSharedPreferences() {
         SharedPreferences sharedPref = getActivity().getSharedPreferences("com.example.myapp.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE);

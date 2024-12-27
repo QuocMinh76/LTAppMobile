@@ -11,7 +11,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 5; // Tăng phiên bản khi thay đổi cấu trúc DB
+    private static final int DATABASE_VERSION = 9; // Tăng phiên bản khi thay đổi cấu trúc DB
     private static final String DATABASE_NAME = "todo.db";
 
     // Bảng events
@@ -79,14 +79,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 //    //xoa database
-//    public void clearDatabase() {
-//        SQLiteDatabase db = this.getWritableDatabase();
-//        db.execSQL("DELETE FROM ten_bang"); // Xóa tất cả dữ liệu trong bảng
-//        db.execSQL("DROP TABLE IF EXISTS events");
-//        db.execSQL("DROP TABLE IF EXISTS category");
-//        db.execSQL("DROP TABLE IF EXISTS user");
-//        db.close();
-//    }
+    public void clearDatabase() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DROP TABLE IF EXISTS events");
+        db.execSQL("DROP TABLE IF EXISTS category");
+        db.execSQL("DROP TABLE IF EXISTS user");
+        db.close();
+    }
 
     //tao
     @Override
@@ -275,19 +274,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         );
     }
 
-    public Cursor getCategoriesByUser(int userId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        return db.query(
-                TABLE_CATEGORY, // Tên bảng
-                null, // Lấy tất cả các cột
-                COLUMN_USER_ID + " = ?", // Điều kiện WHERE
-                new String[]{String.valueOf(userId)}, // Giá trị của điều kiện WHERE
-                null, // GROUP BY
-                null, // HAVING
-                null // ORDER BY
-        );
-    }
-
     public Cursor getEventById(int eventId) {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.query(
@@ -299,6 +285,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 null, // HAVING
                 null // ORDER BY
         );
+    }
+
+    public Cursor getEventById(int eventId, int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM events WHERE id = ? AND user_id = ?", new String[]{String.valueOf(eventId), String.valueOf(userId)});
     }
 
     public int getCategoryIdByName(String categoryName, int currentUserId) {
@@ -321,6 +312,42 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // Trả về giá trị mặc định nếu không tìm thấy
         return -1;
+    }
+
+    public Cursor getEventsByUser(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query(
+                TABLE_EVENTS, // Tên bảng
+                null, // Lấy tất cả các cột
+                COLUMN_USER_ID + " = ?", // Điều kiện WHERE
+                new String[]{String.valueOf(userId)}, // Giá trị của điều kiện WHERE
+                null, // GROUP BY
+                null, // HAVING
+                null // ORDER BY
+        );
+    }
+
+    public Cursor getCategoriesByUser(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query(
+                TABLE_CATEGORY, // Tên bảng
+                null, // Lấy tất cả các cột
+                COLUMN_CATEGORY_USER_ID + " = ?", // Điều kiện WHERE
+                new String[]{String.valueOf(userId)}, // Giá trị của điều kiện WHERE
+                null, // GROUP BY
+                null, // HAVING
+                null // ORDER BY
+        );
+    }
+
+    public Cursor getEventsByDate(String date, int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM events WHERE date(datetime) = ? AND user_id = ?", new String[]{date, String.valueOf(userId)});
+    }
+
+    public Cursor getAllCategories(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM category WHERE user_id = ?", new String[]{String.valueOf(userId)});
     }
 
 }
