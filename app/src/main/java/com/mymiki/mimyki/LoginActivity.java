@@ -1,17 +1,30 @@
 package com.mymiki.mimyki;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
+
 import android.os.Bundle;
+
+import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
+import androidx.appcompat.app.AppCompatActivity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-import androidx.appcompat.app.AppCompatActivity;
+import com.mymiki.mimyki.databinding.ActivityLoginBinding;
+import com.mymiki.mimyki.DatabaseHelper;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 public class LoginActivity extends AppCompatActivity {
     private EditText etUsername, etPassword;
-    private Button btnLogin, btnToRegister;
+    private Button btnLogin, btnRegister;
+
     private DatabaseHelper dbHelper;
 
     @Override
@@ -23,7 +36,9 @@ public class LoginActivity extends AppCompatActivity {
         etUsername = findViewById(R.id.etUsername);
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
-        btnToRegister = findViewById(R.id.btnToRegister);
+
+        btnRegister = findViewById(R.id.btnRegister);
+
 
         dbHelper = new DatabaseHelper(this);
 
@@ -47,11 +62,13 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         // Xử lý khi nhấn nút "Đăng ký"
-        btnToRegister.setOnClickListener(v -> {
+
+        btnRegister.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
             startActivity(intent);
         });
     }
+
 
     private void saveUserIdToSharedPreferences(int userId) {
         SharedPreferences sharedPref = getSharedPreferences("com.example.myapp.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE);
