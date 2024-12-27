@@ -2,6 +2,8 @@ package com.mymiki.mimyki;
 
 import android.annotation.SuppressLint;
 import android.app.TimePickerDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 
@@ -44,6 +46,8 @@ public class CalendarFragment extends Fragment {
     private DatabaseHelper dbHelper;
     private String selectedDate;
 
+    private int user_id = -1;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -53,58 +57,59 @@ public class CalendarFragment extends Fragment {
         eventListView = view.findViewById(R.id.eventListView);
         addEventButton = view.findViewById(R.id.addEventButton);
         dbHelper = new DatabaseHelper(getContext());
+        user_id = getUserIdFromSharedPreferences();
 
-        // Lấy ngày được chọn
+        if (user_id == -1) {
+            Toast.makeText(getContext(), "Không xác định được người dùng. Vui lòng đăng nhập lại.", Toast.LENGTH_SHORT).show();
+            return view;
+        }
+
         selectedDate = getCurrentDate();
-        // Xử lý sự kiện chọn ngày
+
         calendarView.setOnDateChangeListener((view1, year, month, dayOfMonth) -> {
             selectedDate = String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth);
             loadEventsForSelectedDate();
         });
-        // Nút thêm sự kiện
+
         addEventButton.setOnClickListener(v -> openEventDialog(null));
+
         return view;
     }
 
     private void loadEventsForSelectedDate() {
-        Cursor cursor = dbHelper.getEventsByDate(selectedDate); // Lấy sự kiện theo ngày từ cơ sở dữ liệu
-        if (cursor != null && cursor.getCount() > 0) { // Kiểm tra nếu có sự kiện
+        Cursor cursor = dbHelper.getEventsByDate(selectedDate, user_id);
+        if (cursor != null && cursor.getCount() > 0) {
             ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1);
-            final List<Integer> eventIds = new ArrayList<>(); // Danh sách lưu trữ eventId
+            final List<Integer> eventIds = new ArrayList<>();
 
-            // Lấy tất cả sự kiện cho ngày đã chọn
             while (cursor.moveToNext()) {
                 @SuppressLint("Range") String eventName = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_EVENT_NAME));
                 @SuppressLint("Range") int eventId = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_EVENT_ID));
-                eventIds.add(eventId); // Lưu eventId tương ứng với mỗi tên sự kiện
-                adapter.add(eventName); // Thêm tên sự kiện vào adapter
+                eventIds.add(eventId);
+                adapter.add(eventName);
             }
 
-            cursor.close(); // Đảm bảo đóng cursor khi xong
-            eventListView.setAdapter(adapter); // Gắn adapter cho ListView
+            cursor.close();
+            eventListView.setAdapter(adapter);
 
-            // Xử lý khi nhấn vào sự kiện
             eventListView.setOnItemClickListener((parent, view, position, id) -> {
-                // Lấy eventId từ danh sách đã lưu
                 int eventId = eventIds.get(position);
-                openEventDialog(eventId); // Mở dialog sửa sự kiện
+                openEventDialog(eventId);
             });
 
-            // Hiển thị lại ListView nếu có sự kiện
             eventListView.setVisibility(View.VISIBLE);
             TextView noEventsTextView = getView().findViewById(R.id.noEventsTextView);
             if (noEventsTextView != null) {
-                noEventsTextView.setVisibility(View.GONE); // Ẩn thông báo "Không có sự kiện"
+                noEventsTextView.setVisibility(View.GONE);
             }
         } else {
             ArrayAdapter<String> emptyAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1);
             emptyAdapter.add("Không có sự kiện cho ngày này");
-            eventListView.setAdapter(emptyAdapter); // Hiển thị thông báo nếu không có sự kiện
+            eventListView.setAdapter(emptyAdapter);
 
-            // Ẩn ListView và hiển thị TextView thông báo
-            eventListView.setVisibility(View.GONE); // Ẩn ListView
+            eventListView.setVisibility(View.GONE);
             TextView noEventsTextView = getView().findViewById(R.id.noEventsTextView);
-            noEventsTextView.setVisibility(View.VISIBLE); // Hiển thị thông báo
+            noEventsTextView.setVisibility(View.VISIBLE);
         }
     }
 
@@ -117,8 +122,7 @@ public class CalendarFragment extends Fragment {
         EditText locationInput = dialogView.findViewById(R.id.locationInput);
         Spinner categorySpinner = dialogView.findViewById(R.id.categorySpinner);
 
-        // Lấy danh sách category
-        Cursor categoryCursor = dbHelper.getAllCategories();
+        Cursor categoryCursor = dbHelper.getAllCategories(user_id);
         ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item);
         while (categoryCursor.moveToNext()) {
             categoryAdapter.add(categoryCursor.getString(categoryCursor.getColumnIndex(DatabaseHelper.COLUMN_CATEGORY_NAME)));
@@ -126,14 +130,12 @@ public class CalendarFragment extends Fragment {
         categoryCursor.close();
         categorySpinner.setAdapter(categoryAdapter);
 
-        // Set up TimePickerDialog
         timeButton.setOnClickListener(v -> {
-            int hour = 12; // Default hour
-            int minute = 0; // Default minute
+            int hour = 12;
+            int minute = 0;
 
-            // If eventId is provided, pre-fill the time
             if (eventId != null) {
-                Cursor eventCursor = dbHelper.getEventById(eventId);
+                Cursor eventCursor = dbHelper.getEventById(eventId, user_id);
                 if (eventCursor != null && eventCursor.moveToFirst()) {
                     String[] datetimeParts = eventCursor.getString(eventCursor.getColumnIndex(DatabaseHelper.COLUMN_DATETIME)).split(" ");
                     if (datetimeParts.length == 2) {
@@ -147,27 +149,24 @@ public class CalendarFragment extends Fragment {
                 }
             }
 
-            // Open TimePickerDialog
             new TimePickerDialog(getContext(), (view, hourOfDay, minute1) -> {
                 String time = String.format("%02d:%02d", hourOfDay, minute1);
-                timeButton.setText(time); // Set the selected time on the button
+                timeButton.setText(time);
             }, hour, minute, true).show();
         });
 
-        // Nếu eventId là null, set giờ hiện tại cho nút
         if (eventId == null) {
             String currentTime = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date());
-            timeButton.setText(currentTime); // Set the current time if no eventId
+            timeButton.setText(currentTime);
         } else {
-            // Nếu là chỉnh sửa, dữ liệu sự kiện sẽ được load từ cơ sở dữ liệu
-            Cursor eventCursor = dbHelper.getEventById(eventId);
+            Cursor eventCursor = dbHelper.getEventById(eventId, user_id);
             if (eventCursor != null && eventCursor.moveToFirst()) {
                 eventNameInput.setText(eventCursor.getString(eventCursor.getColumnIndex(DatabaseHelper.COLUMN_EVENT_NAME)));
                 descriptionInput.setText(eventCursor.getString(eventCursor.getColumnIndex(DatabaseHelper.COLUMN_DESCRIPTION)));
                 locationInput.setText(eventCursor.getString(eventCursor.getColumnIndex(DatabaseHelper.COLUMN_LOCATION)));
                 String[] datetimeParts = eventCursor.getString(eventCursor.getColumnIndex(DatabaseHelper.COLUMN_DATETIME)).split(" ");
                 if (datetimeParts.length == 2) {
-                    timeButton.setText(datetimeParts[1]); // Set time from event
+                    timeButton.setText(datetimeParts[1]);
                 }
                 eventCursor.close();
             }
@@ -182,13 +181,11 @@ public class CalendarFragment extends Fragment {
                     String location = locationInput.getText().toString();
                     String categoryName = categorySpinner.getSelectedItem().toString();
 
-                    // Kết hợp ngày đã chọn với giờ nhập vào
                     String datetime = selectedDate + " " + time;
 
                     if (eventId == null) {
-                        // Tìm cateId từ categoryName
-                        Cursor cursor = dbHelper.getAllCategories();
-                        int cateId = 1; // Giá trị mặc định nếu không tìm thấy
+                        Cursor cursor = dbHelper.getAllCategories(user_id);
+                        int cateId = 1;
                         while (cursor.moveToNext()) {
                             if (cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_CATEGORY_NAME)).equals(categoryName)) {
                                 cateId = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_CATEGORY_ID));
@@ -197,17 +194,17 @@ public class CalendarFragment extends Fragment {
                         }
                         cursor.close();
 
-                        dbHelper.addEvent(eventName, description, datetime, location, "Khác", cateId, 1); // Thêm userId thực tế
+                        dbHelper.addEvent(eventName, description, datetime, location, "Khác", cateId, user_id);
                     } else {
                         dbHelper.updateEvent(eventId, eventName, description, datetime, location, "Khác");
                     }
-                    loadEventsForSelectedDate(); // Cập nhật lại danh sách sự kiện
+                    loadEventsForSelectedDate();
                 })
                 .setNegativeButton("Hủy", null)
                 .setNeutralButton("Xóa", (dialog, which) -> {
                     if (eventId != null) {
-                        dbHelper.deleteEvent(eventId); // Xóa sự kiện khỏi cơ sở dữ liệu
-                        loadEventsForSelectedDate(); // Làm mới danh sách sự kiện sau khi xóa
+                        dbHelper.deleteEvent(eventId);
+                        loadEventsForSelectedDate();
                     }
                 });
         builder.create().show();
@@ -217,4 +214,10 @@ public class CalendarFragment extends Fragment {
         Calendar calendar = Calendar.getInstance();
         return String.format("%04d-%02d-%02d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH));
     }
+
+    private int getUserIdFromSharedPreferences() {
+        SharedPreferences sharedPref = getActivity().getSharedPreferences("com.example.myapp.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE);
+        return sharedPref.getInt("user_id", -1);
+    }
 }
+
