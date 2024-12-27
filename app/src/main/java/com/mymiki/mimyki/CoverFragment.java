@@ -1,6 +1,7 @@
 package com.mymiki.mimyki;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +16,7 @@ import androidx.fragment.app.Fragment;
 public class CoverFragment extends Fragment {
 
     private DatabaseHelper dbHelper;
-    private int currentUserId = 1; // Giả định ID người dùng hiện tại là 1
+    private int currentUserId = -1; // Giả định ID người dùng hiện tại là 1
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -28,6 +29,8 @@ public class CoverFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_cover, container, false);
 
+        currentUserId = getUserIdFromSharedPreferences();
+
         Button btnBuyPremium = view.findViewById(R.id.btn_buy_premium);
         btnBuyPremium.setOnClickListener(v -> {
             // Cập nhật thông tin Premium trong SQLite
@@ -39,5 +42,10 @@ public class CoverFragment extends Fragment {
         });
 
         return view;
+    }
+
+    private int getUserIdFromSharedPreferences() {
+        SharedPreferences sharedPref = getActivity().getSharedPreferences("com.example.myapp.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE);
+        return sharedPref.getInt("user_id", -1);
     }
 }
