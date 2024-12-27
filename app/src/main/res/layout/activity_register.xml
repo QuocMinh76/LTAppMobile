@@ -29,9 +29,10 @@
                 android:textColor="@color/lavender"/>
             <EditText
                 android:id="@+id/etName"
-                android:layout_width="370dp"
+                android:layout_width="310dp"
                 android:layout_height="60dp"
                 android:layout_marginTop="30dp"
+                android:layout_marginLeft="30dp"
                 android:background="@drawable/lavender_border"
                 android:drawableLeft="@drawable/baseline_control_point_24"
                 android:drawablePadding="8dp"
@@ -40,9 +41,10 @@
 
             <EditText
                 android:id="@+id/etUsername"
-                android:layout_width="370dp"
+                android:layout_width="310dp"
                 android:layout_height="60dp"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginLeft="30dp"
                 android:background="@drawable/lavender_border"
                 android:drawableLeft="@drawable/baseline_account_circle_24"
                 android:drawablePadding="8dp"
@@ -51,9 +53,10 @@
 
             <EditText
                 android:id="@+id/etPassword"
-                android:layout_width="370dp"
+                android:layout_width="310dp"
                 android:layout_height="60dp"
                 android:layout_marginTop="20dp"
+                android:layout_marginLeft="30dp"
                 android:background="@drawable/lavender_border"
                 android:drawableLeft="@drawable/baseline_block_24"
                 android:drawablePadding="8dp"
@@ -63,9 +66,10 @@
 
             <EditText
                 android:id="@+id/signup_confirm"
-                android:layout_width="370dp"
+                android:layout_width="310dp"
                 android:layout_height="60dp"
                 android:layout_marginTop="20dp"
+                android:layout_marginLeft="30dp"
                 android:background="@drawable/lavender_border"
                 android:drawableLeft="@drawable/baseline_task_24"
                 android:drawablePadding="8dp"
@@ -77,20 +81,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
                 <Button
-                    android:id="@+id/btnSignup"
-                    android:layout_width="170dp"
-                    android:layout_height="70dp"
-                    android:layout_marginTop="30dp"
+                    android:id="@+id/btnRegister"
+                    android:layout_width="140dp"
+                    android:layout_height="65dp"
+                    android:layout_marginLeft="35dp"
+                    android:layout_marginTop="20dp"
                     android:text="Đăng ký"
                     android:textSize="18sp"
                     app:cornerRadius="30dp" />
 
                 <Button
                     android:id="@+id/btnLogin"
-                    android:layout_width="170dp"
-                    android:layout_height="70dp"
-                    android:layout_marginLeft="25dp"
-                    android:layout_marginTop="30dp"
+                    android:layout_width="140dp"
+                    android:layout_height="65dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="20dp"
                     android:text="Đăng nhập"
                     android:textSize="18sp"
                     app:cornerRadius="30dp"/>
