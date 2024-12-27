@@ -25,7 +25,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Premium"
-            android:enabled="false" />
+            android:enabled="false"
+            android:visibility="gone"/>
 
         <TextView
             android:id="@+id/tvPremiumStatus"
@@ -57,7 +58,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Xóa tài khoản"
-            android:textColor="@android:color/holo_red_dark"
+            android:textColor="@color/orange"
             android:layout_marginTop="10dp" />
 
         <Button

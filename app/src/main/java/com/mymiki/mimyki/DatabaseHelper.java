@@ -32,6 +32,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_CATEGORY_NAME = "name";
     public static final String COLUMN_CATEGORY_USER_ID = "user_id";
 
+    // Bảng priority
+    public static final String TABLE_PRIORITY = "priority";
+    public static final String COLUMN_PRIORITY_ID = "id";
+    public static final String COLUMN_PRIORITY_NAME = "name";
+
     // Bảng user
     public static final String TABLE_USER = "user";
     public static final String COLUMN_USER_ID_TABLE = "id";
@@ -62,6 +67,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_CATEGORY_USER_ID + " INTEGER, "
                 + "FOREIGN KEY(" + COLUMN_CATEGORY_USER_ID + ") REFERENCES " + TABLE_USER + "(" + COLUMN_USER_ID_TABLE + "))";
         db.execSQL(CREATE_CATEGORY_TABLE);
+
+        // Tạo bảng priority
+        String CREATE_PRIORITY_TABLE = "CREATE TABLE " + TABLE_PRIORITY + " ("
+                + COLUMN_PRIORITY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COLUMN_PRIORITY_NAME + " TEXT)";
+        db.execSQL(CREATE_PRIORITY_TABLE);
 
         // Tạo bảng events
         String CREATE_EVENTS_TABLE = "CREATE TABLE " + TABLE_EVENTS + " ("
@@ -96,6 +107,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_EVENTS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORY);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRIORITY);
         onCreate(db);
     }
 
