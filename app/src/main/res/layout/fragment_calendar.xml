@@ -20,69 +20,52 @@
                 android:id="@+id/calendarView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text="Danh sách sự kiện"
+                android:textSize="20sp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/listview_background"
+                android:textAlignment="center"
+                android:paddingTop="5dp"
+                android:textColor="@color/black"/>
+<!--            <Button-->
+<!--                android:id="@+id/addEventButton"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="Thêm sự kiện" />-->
 
             <TextView
-                android:id="@+id/eventDetails"
+                android:id="@+id/noEventsTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Chọn một ngày để xem sự kiện"
-                android:padding="8dp"
-                android:textSize="16sp" />
+                android:text="Không có sự kiện cho ngày này"
+                android:visibility="gone"
+                android:textAlignment="center"
+                android:textColor="@android:color/black"
+                android:padding="16dp" />
 
-            <EditText
-                android:id="@+id/inputEventName"
+            <ListView
+                android:id="@+id/eventListView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Nhập tên sự kiện"
-                android:inputType="text" />
-
-            <EditText
-                android:id="@+id/inputEventDescription"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Nhập mô tả sự kiện"
-                android:inputType="text" />
-
-            <EditText
-                android:id="@+id/inputStartTime"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Nhập thời gian bắt đầu (HH:mm)"
-                android:inputType="time" />
-
-            <EditText
-                android:id="@+id/inputEndTime"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Nhập thời gian kết thúc (HH:mm)"
-                android:inputType="time" />
-
-            <Button
-                android:id="@+id/btnAddEvent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Thêm sự kiện" />
-
-            <Button
-                android:id="@+id/btnUpdateEvent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Cập nhật sự kiện" />
-
-            <Button
-                android:id="@+id/btnDeleteEvent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Xóa sự kiện" />
-
-            <Button
-                android:id="@+id/btnViewAllEvents"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Xem tất cả sự kiện" />
-
+                android:layout_marginTop="10dp"
+                android:layout_height="260dp"
+                android:layout_weight="1"
+                android:background="@drawable/viewpaper_bkg"
+                android:divider="@android:color/darker_gray"
+                android:dividerHeight="1dp" />
         </LinearLayout>
-    </ScrollView>
 
+    </ScrollView>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/addEventButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="16dp"
+        android:elevation="10dp"
+        android:src="@drawable/ic_add"
+        android:visibility="visible" />
 </FrameLayout>
 
