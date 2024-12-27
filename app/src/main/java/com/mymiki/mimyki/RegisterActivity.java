@@ -1,5 +1,7 @@
 package com.mymiki.mimyki;
 
+
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
@@ -9,7 +11,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class RegisterActivity extends AppCompatActivity {
     private EditText etName, etUsername, etPassword;
-    private Button btnRegister, btnToLogin;
+
+    private Button btnRegister, btnLogin;
+
     private DatabaseHelper dbHelper;
 
     @Override
@@ -22,7 +26,8 @@ public class RegisterActivity extends AppCompatActivity {
         etUsername = findViewById(R.id.etUsername);
         etPassword = findViewById(R.id.etPassword);
         btnRegister = findViewById(R.id.btnRegister);
-        btnToLogin = findViewById(R.id.btnToLogin);
+
+        btnLogin = findViewById(R.id.btnLogin);
 
         dbHelper = new DatabaseHelper(this);
 
@@ -48,7 +53,8 @@ public class RegisterActivity extends AppCompatActivity {
         });
 
         // Xử lý khi nhấn nút "Đăng nhập"
-        btnToLogin.setOnClickListener(v -> {
+
+        btnLogin.setOnClickListener(v -> {
             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
