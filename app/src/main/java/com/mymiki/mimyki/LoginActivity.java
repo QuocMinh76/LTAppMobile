@@ -1,5 +1,6 @@
 package com.mymiki.mimyki;
 
+
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -15,8 +16,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-import com.mymiki.mimyki.databinding.ActivityLoginBinding;
-import com.mymiki.mimyki.DatabaseHelper;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 public class LoginActivity extends AppCompatActivity {
     private EditText etUsername, etPassword;
@@ -32,7 +33,9 @@ public class LoginActivity extends AppCompatActivity {
         etUsername = findViewById(R.id.etUsername);
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
+
         btnRegister = findViewById(R.id.btnRegister);
+
 
         dbHelper = new DatabaseHelper(this);
 
@@ -41,8 +44,13 @@ public class LoginActivity extends AppCompatActivity {
             String username = etUsername.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
 
-            if (dbHelper.login(username, password)) {
+            int userId = dbHelper.login(username, password); // Lấy user_id từ phương thức login
+
+            if (userId != -1) {
                 Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
+
+                saveUserIdToSharedPreferences(userId); // Truyền id của user đã đăng nhập vào đây
+
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
@@ -52,9 +60,18 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         // Xử lý khi nhấn nút "Đăng ký"
+
         btnRegister.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
             startActivity(intent);
         });
+    }
+
+
+    private void saveUserIdToSharedPreferences(int userId) {
+        SharedPreferences sharedPref = getSharedPreferences("com.example.myapp.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putInt("user_id", userId);
+        editor.apply();
     }
 }

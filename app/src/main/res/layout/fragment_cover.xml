@@ -1,0 +1,25 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#80000000"> <!-- Màu nền trong suốt -->
+
+    <TextView
+        android:id="@+id/tv_cover_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="Chỉ dành cho người dùng Premium"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/btn_buy_premium"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_cover_message"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:text="Mua Premium" />
+
+</RelativeLayout>

@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
                     }else if (item.getItemId() == R.id.nav_matrix) {
                         selectedFragment = new MatrixFragment();
                     } else if (item.getItemId() == R.id.nav_setting) {
-                        selectedFragment = new SettingFragment();
+                        selectedFragment = new AccountFragment();
                     }
                     getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
                     return true;
