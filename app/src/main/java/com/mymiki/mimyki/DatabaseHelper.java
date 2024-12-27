@@ -57,7 +57,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // Tạo bảng category
         String CREATE_CATEGORY_TABLE = "CREATE TABLE " + TABLE_CATEGORY + " ("
                 + COLUMN_CATEGORY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + COLUMN_CATEGORY_NAME + " TEXT UNIQUE, "
+                + COLUMN_CATEGORY_NAME + " TEXT, "
                 + COLUMN_CATEGORY_USER_ID + " INTEGER, "
                 + "FOREIGN KEY(" + COLUMN_CATEGORY_USER_ID + ") REFERENCES " + TABLE_USER + "(" + COLUMN_USER_ID_TABLE + "))";
         db.execSQL(CREATE_CATEGORY_TABLE);
