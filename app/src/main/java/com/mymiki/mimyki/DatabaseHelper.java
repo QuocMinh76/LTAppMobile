@@ -10,7 +10,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 4; // Tăng phiên bản khi thay đổi cấu trúc DB
+    private static final int DATABASE_VERSION = 5; // Tăng phiên bản khi thay đổi cấu trúc DB
     private static final String DATABASE_NAME = "todo.db";
 
     // Bảng events

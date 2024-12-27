@@ -41,11 +41,6 @@ public class MatrixFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    FloatingActionButton fabAddTask;
-    ListView listQuadrant1, listQuadrant2, listQuadrant3, listQuadrant4;
-    ArrayList<String> quadrant1Tasks, quadrant2Tasks, quadrant3Tasks, quadrant4Tasks;
-    ArrayAdapter<String> quadrant1Adapter, quadrant2Adapter, quadrant3Adapter, quadrant4Adapter;
-
     public MatrixFragment() {
         // Required empty public constructor
     }
@@ -67,6 +62,11 @@ public class MatrixFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
+
+    FloatingActionButton fabAddTask;
+    ListView listQuadrant1, listQuadrant2, listQuadrant3, listQuadrant4;
+    ArrayList<String> quadrant1Tasks, quadrant2Tasks, quadrant3Tasks, quadrant4Tasks;
+    ArrayAdapter<String> quadrant1Adapter, quadrant2Adapter, quadrant3Adapter, quadrant4Adapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
