@@ -1,7 +1,5 @@
 package com.mymiki.mimyki;
 
-import static java.security.AccessController.getContext;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -12,7 +10,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 4; // Tăng phiên bản khi thay đổi cấu trúc DB
+    private static final int DATABASE_VERSION = 5; // Tăng phiên bản khi thay đổi cấu trúc DB
     private static final String DATABASE_NAME = "todo.db";
 
     // Bảng events
@@ -154,7 +152,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Thêm người dùng
-    public void addUser(String name, String username, String password, boolean isPremium) {
+    public Boolean addUser(String name, String username, String password, boolean isPremium) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
 
@@ -167,6 +165,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_IS_PREMIUM, isPremium ? 1 : 0);
         db.insert(TABLE_USER, null, values);
         db.close();
+        return null;
     }
 
     // Lấy danh sách tất cả người dùng
