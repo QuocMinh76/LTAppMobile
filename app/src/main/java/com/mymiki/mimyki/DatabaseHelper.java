@@ -116,39 +116,37 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     //xác thực khi đăng nhập (pass data và pass nhập vào)
-    public boolean authenticateUser(String username, String password) {
+    public int authenticateUser(String username, String password) {
         SQLiteDatabase db = this.getReadableDatabase();
 
         // Truy vấn mật khẩu đã băm từ cơ sở dữ liệu
-        String query = "SELECT " + COLUMN_PASSWORD + " FROM " + TABLE_USER + " WHERE " + COLUMN_USERNAME + " = ?";
+        String query = "SELECT " + COLUMN_USER_ID_TABLE + ", " + COLUMN_PASSWORD + " FROM " + TABLE_USER + " WHERE " + COLUMN_USERNAME + " = ?";
         Cursor cursor = db.rawQuery(query, new String[]{username});
 
         if (cursor != null && cursor.moveToFirst()) {
-            String storedHashedPassword = cursor.getString(0); // Mật khẩu đã băm
+            int userId = cursor.getInt(0); // Lấy user_id
+            String storedHashedPassword = cursor.getString(1); // Mật khẩu đã băm
             cursor.close();
 
             // Băm mật khẩu người dùng nhập vào
             String hashedPassword = hashPassword(password);
 
             // So sánh mật khẩu đã băm
-            return storedHashedPassword.equals(hashedPassword);
+            if (storedHashedPassword.equals(hashedPassword)) {
+                return userId; // Trả về user_id nếu đăng nhập thành công
+            }
         }
 
         if (cursor != null) {
             cursor.close();
         }
-        return false; // Không tìm thấy người dùng
+
+        return -1; // Trả về -1 nếu không tìm thấy người dùng hoặc mật khẩu không khớp
     }
 
     // Hàm xử lý đăng nhập
-    public boolean login(String username, String password) {
-        if (authenticateUser(username, password)) {
-            // Đăng nhập thành công
-            return true;
-        } else {
-            // Thông báo lỗi: Sai tên đăng nhập hoặc mật khẩu
-            return false;
-        }
+    public int login(String username, String password) {
+        return authenticateUser(username, password); // Trả về user_id hoặc -1
     }
 
     // Thêm người dùng

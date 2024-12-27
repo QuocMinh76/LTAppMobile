@@ -22,7 +22,6 @@ import android.content.SharedPreferences;
 public class LoginActivity extends AppCompatActivity {
     private EditText etUsername, etPassword;
     private Button btnLogin, btnRegister;
-
     private DatabaseHelper dbHelper;
 
     @Override
@@ -45,11 +44,12 @@ public class LoginActivity extends AppCompatActivity {
             String username = etUsername.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
 
-            if (dbHelper.login(username, password)) {
+            int userId = dbHelper.login(username, password); // Lấy user_id từ phương thức login
+
+            if (userId != -1) {
                 Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
 
-                saveUserIdToSharedPreferences(3); // Truyền id của user đã đăng nhập vào đây
-                // Hiện tại chỉ đang truyền tĩnh, tìm đến user có mã là 3
+                saveUserIdToSharedPreferences(userId); // Truyền id của user đã đăng nhập vào đây
 
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);
