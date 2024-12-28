@@ -1,8 +1,12 @@
 package com.mymiki.mimyki;
 
 
-import android.app.Activity;
+import static com.mymiki.mimyki.DatabaseHelper.COLUMN_CATEGORY_ID;
+import static com.mymiki.mimyki.DatabaseHelper.COLUMN_CATEGORY_USER_ID;
+import static com.mymiki.mimyki.DatabaseHelper.TABLE_CATEGORY;
+
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -25,7 +29,7 @@ public class RegisterActivity extends AppCompatActivity {
         etName = findViewById(R.id.etName);
         etUsername = findViewById(R.id.etUsername);
         etPassword = findViewById(R.id.etPassword);
-        btnRegister = findViewById(R.id.btnRegister);
+        btnRegister = findViewById(R.id.btnRegister_r);
 
         btnLogin = findViewById(R.id.btnLogin);
 
@@ -42,14 +46,48 @@ public class RegisterActivity extends AppCompatActivity {
                 return;
             }
 
-            // Thêm người dùng vào SQLite
-            dbHelper.addUser(name, username, password, false);
-            Toast.makeText(this, "Đăng ký thành công!", Toast.LENGTH_SHORT).show();
+            // Add the user and get the userId
+            long userId = dbHelper.addUser(name, username, password, false);
 
-            // Chuyển về màn hình đăng nhập
-            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-            startActivity(intent);
-            finish();
+            if (userId != -1) {
+                // Add default category
+                dbHelper.addCategory("Chào mừng!", (int) userId);
+
+                // Get the category ID of the newly added category (assuming a method to get the last inserted ID)
+                Cursor cursor = dbHelper.getReadableDatabase().rawQuery(
+                        "SELECT " + COLUMN_CATEGORY_ID + " FROM " + TABLE_CATEGORY +
+                                " WHERE " + COLUMN_CATEGORY_USER_ID + " = ? ORDER BY " + COLUMN_CATEGORY_ID + " DESC LIMIT 1",
+                        new String[]{String.valueOf(userId)});
+
+                int categoryId = -1;
+                if (cursor.moveToFirst()) {
+                    categoryId = cursor.getInt(0);
+                }
+                cursor.close();
+
+                // Add default event if categoryId is valid
+                if (categoryId != -1) {
+                    dbHelper.addEvent(
+                            "Hãy bắt đầu....",
+                            "...thêm các hoạt động mới cho bản thân!",
+                            "2025-01-01 00:00:00",
+                            "Nhà của bạn",
+                            false,
+                            1, // Assuming 'Khác' priority is ID 1
+                            categoryId,
+                            (int) userId
+                    );
+                }
+
+                Toast.makeText(this, "Đăng ký thành công!", Toast.LENGTH_SHORT).show();
+
+                // Redirect to LoginActivity
+                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+            } else {
+                Toast.makeText(this, "Đăng ký thất bại!", Toast.LENGTH_SHORT).show();
+            }
         });
 
         // Xử lý khi nhấn nút "Đăng nhập"
