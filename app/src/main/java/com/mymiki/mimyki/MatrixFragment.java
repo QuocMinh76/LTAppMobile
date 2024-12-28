@@ -4,6 +4,8 @@ import static com.mymiki.mimyki.DatabaseHelper.COLUMN_IS_PREMIUM;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -30,6 +32,8 @@ import android.widget.Toast;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Locale;
 
 public class MatrixFragment extends Fragment {
 
@@ -46,6 +50,8 @@ public class MatrixFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         dbHelper = new DatabaseHelper(getContext());
+        user_id = getUserIdFromSharedPreferences(); // Đảm bảo lấy user_id
+
     }
 
     @Override
@@ -77,6 +83,7 @@ public class MatrixFragment extends Fragment {
 
         // Kiểm tra quyền Premium
         if (!isUserPremium()) {
+            setupFunctionality();
             showCoverFragment();
         } else {
             setupFunctionality();
@@ -130,11 +137,35 @@ public class MatrixFragment extends Fragment {
 
         EditText edtTaskContent = dialogView.findViewById(R.id.edt_task_content);
         Spinner spinnerPriority = dialogView.findViewById(R.id.spinner_priority);
+        Button btnSelectDateTime = dialogView.findViewById(R.id.btn_select_datetime);
 
         ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(
                 getContext(), R.array.matrix_strings, android.R.layout.simple_spinner_item);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerPriority.setAdapter(spinnerAdapter);
+
+        final String[] selectedDateTime = {""};
+
+        btnSelectDateTime.setOnClickListener(v -> {
+            Calendar calendar = Calendar.getInstance();
+            DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
+                    (view, year, monthOfYear, dayOfMonth) -> {
+                        TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(),
+                                (timeView, hourOfDay, minute) -> {
+                                    selectedDateTime[0] = String.format(Locale.getDefault(), "%04d-%02d-%02d %02d:%02d",
+                                            year, monthOfYear + 1, dayOfMonth, hourOfDay, minute);
+                                    btnSelectDateTime.setText(selectedDateTime[0]);
+                                },
+                                calendar.get(Calendar.HOUR_OF_DAY),
+                                calendar.get(Calendar.MINUTE),
+                                true);
+                        timePickerDialog.show();
+                    },
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH));
+            datePickerDialog.show();
+        });
 
         new AlertDialog.Builder(getContext())
                 .setTitle("Thêm công việc mới")
@@ -142,11 +173,11 @@ public class MatrixFragment extends Fragment {
                 .setPositiveButton("Thêm", (dialog, which) -> {
                     String taskContent = edtTaskContent.getText().toString().trim();
                     int priority = spinnerPriority.getSelectedItemPosition();
-                    if (!taskContent.isEmpty()) {
-                        addTaskToQuadrant(taskContent, priority);
+                    if (!taskContent.isEmpty() && !selectedDateTime[0].isEmpty()) {
+                        addTaskToQuadrant(taskContent, priority, selectedDateTime[0]);
                         Toast.makeText(getContext(), "Đã thêm công việc", Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(getContext(), "Vui lòng nhập nội dung công việc", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Vui lòng nhập nội dung công việc và chọn ngày giờ", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .setNegativeButton("Hủy", null)
@@ -154,10 +185,9 @@ public class MatrixFragment extends Fragment {
                 .show();
     }
 
-    private void addTaskToQuadrant(String taskContent, int priority) {
-
+    private void addTaskToQuadrant(String taskContent, int priority, String dateTime) {
         // Thêm vào SQLite
-        dbHelper.addEvent(taskContent, "", "", "", false, priority, 1, user_id); //Để tạm cate_id = 1
+        dbHelper.addEvent(taskContent, "", dateTime, "", false, priority, 1, user_id); //Để tạm cate_id = 1
 
         // Thêm vào danh sách hiển thị
         switch (priority) {
@@ -188,6 +218,8 @@ public class MatrixFragment extends Fragment {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 view.startDragAndDrop(data, shadowBuilder, task, 0);
+            } else {
+                view.startDrag(data, shadowBuilder, task, 0);
             }
 
             taskList.remove(position);
@@ -198,20 +230,38 @@ public class MatrixFragment extends Fragment {
         listView.setOnDragListener((v, event) -> {
             switch (event.getAction()) {
                 case DragEvent.ACTION_DRAG_STARTED:
+                    return true;
                 case DragEvent.ACTION_DRAG_ENTERED:
+                    v.setBackgroundColor(Color.LTGRAY);
+                    return true;
                 case DragEvent.ACTION_DRAG_EXITED:
-                case DragEvent.ACTION_DRAG_ENDED:
                     v.setBackgroundColor(Color.TRANSPARENT);
                     return true;
                 case DragEvent.ACTION_DROP:
+                    v.setBackgroundColor(Color.TRANSPARENT);
                     String droppedTask = event.getClipData().getItemAt(0).getText().toString();
                     taskList.add(droppedTask);
                     adapter.notifyDataSetChanged();
+
+                    // Update the priority in the database
+                    int newPriority = getQuadrantPriority(listView);
+                    dbHelper.updateEventPriority(droppedTask, newPriority, user_id);
                     return true;
+                case DragEvent.ACTION_DRAG_ENDED:
+                    v.setBackgroundColor(Color.TRANSPARENT);
+                    return event.getResult();
                 default:
                     return false;
             }
         });
+    }
+
+    private int getQuadrantPriority(View listView) {
+        if (listView == listQuadrant1) return 0;
+        if (listView == listQuadrant2) return 1;
+        if (listView == listQuadrant3) return 2;
+        if (listView == listQuadrant4) return 3;
+        return -1;
     }
 
     private void showEditTaskDialog(ArrayList<String> taskList, ArrayAdapter<String> adapter, int position) {
@@ -261,34 +311,30 @@ public class MatrixFragment extends Fragment {
     }
 
     private void loadEvents() {
-        Cursor cursor = dbHelper.getAllEvents();
+        Cursor cursor = dbHelper.getEventsByUser(user_id); // Tải công việc theo user_id
         if (cursor != null && cursor.moveToFirst()) {
             do {
                 String taskContent = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EVENT_NAME));
-                String priorityTag = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_PRIORITY_TAG));
+                int priorityTag = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_PRIORITY_TAG));
 
-                // Phân loại theo mức độ ưu tiên
                 switch (priorityTag) {
-                    case "Khẩn cấp":
+                    case 0:
                         quadrant1Tasks.add(taskContent);
                         break;
-                    case "Quan trọng":
+                    case 1:
                         quadrant2Tasks.add(taskContent);
                         break;
-                    case "Bình thường":
+                    case 2:
                         quadrant3Tasks.add(taskContent);
                         break;
-                    case "Khác":
-                    default:
+                    case 3:
                         quadrant4Tasks.add(taskContent);
                         break;
                 }
             } while (cursor.moveToNext());
-
             cursor.close();
         }
 
-        // Cập nhật giao diện
         quadrant1Adapter.notifyDataSetChanged();
         quadrant2Adapter.notifyDataSetChanged();
         quadrant3Adapter.notifyDataSetChanged();
