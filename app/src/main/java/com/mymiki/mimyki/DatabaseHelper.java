@@ -177,7 +177,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Thêm người dùng
-    public Boolean addUser(String name, String username, String password, boolean isPremium) {
+    public long addUser(String name, String username, String password, boolean isPremium) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
 
@@ -188,9 +188,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_USERNAME, username);
         values.put(COLUMN_PASSWORD, hashedPassword);
         values.put(COLUMN_IS_PREMIUM, isPremium ? 1 : 0);
-        db.insert(TABLE_USER, null, values);
+        // Insert user and return the user ID
+        long userId = db.insert(TABLE_USER, null, values);
         db.close();
-        return null;
+        return userId;
     }
 
     // Lấy danh sách tất cả người dùng
@@ -456,6 +457,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return eventId;
         }
         return -1;  // Return -1 if no event ID is found
+    }
+
+    public int getCategoryIdByNameAndUser(String categoryName, int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(
+                TABLE_CATEGORY,
+                new String[]{COLUMN_CATEGORY_ID},
+                COLUMN_CATEGORY_NAME + " = ? AND " + COLUMN_CATEGORY_USER_ID + " = ?",
+                new String[]{categoryName, String.valueOf(userId)},
+                null,
+                null,
+                null
+        );
+
+        if (cursor != null && cursor.moveToFirst()) {
+            int categoryId = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_CATEGORY_ID));
+            cursor.close();
+            return categoryId;
+        }
+
+        if (cursor != null) {
+            cursor.close();
+        }
+        return -1; // Category not found
     }
 
 }
