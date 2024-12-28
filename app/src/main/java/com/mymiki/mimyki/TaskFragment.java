@@ -245,7 +245,7 @@ public class TaskFragment extends Fragment {
         }
 
         // Add event to the database
-        dbHelper.addEvent(taskName, taskDescription, taskDateTime, taskLocation, false, priority, selectedCategoryId, user_id);
+        dbHelper.addEvent(taskName, taskDescription, taskDateTime, taskLocation, false, 1, selectedCategoryId, user_id);
 
         // Retrieve the event ID (after insertion) using a query
         int eventId = dbHelper.getLastInsertedEventId();
