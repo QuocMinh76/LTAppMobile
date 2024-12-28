@@ -278,7 +278,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Sửa sự kiện
-    public void updateEvent(int eventId, String event, String description, String datetime, String location, boolean isDone, int priorityTag) {
+    public void updateEvent(int eventId, String event, String description, String datetime, String location, boolean isDone, int categoryId, int priorityTag) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_EVENT_NAME, event);
@@ -286,6 +286,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_DATETIME, datetime);
         values.put(COLUMN_EVENT_DONE, isDone);
         values.put(COLUMN_LOCATION, location);
+        values.put(COLUMN_CATE_ID, categoryId);
         values.put(COLUMN_PRIORITY_TAG, priorityTag);
         db.update(TABLE_EVENTS, values, COLUMN_EVENT_ID + " = ?", new String[]{String.valueOf(eventId)});
         db.close();

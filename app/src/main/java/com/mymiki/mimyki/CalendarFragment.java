@@ -195,8 +195,16 @@ public class CalendarFragment extends Fragment {
                         cursor.close();
 
                         dbHelper.addEvent(eventName, description, datetime, location, false, 3, cateId, user_id); // Thêm userId thực tế
+
+                        String taskContent = eventNameInput.getText().toString().trim();
+                        // Lấy thời gian thông báo từ SharedPreferences
+                        SharedPreferences sharedPref = getActivity().getSharedPreferences("com.example.myapp.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE);
+                        int offsetMinutes = sharedPref.getInt("notification_offset", 1);
+
+                        // Lên lịch thông báo
+                        NotificationScheduler.scheduleNotification(getContext(), taskContent, datetime, offsetMinutes);
                     } else {
-                        dbHelper.updateEvent(eventId, eventName, description, datetime, location, false, 3);
+                        dbHelper.updateEvent(eventId, eventName, description, datetime, location, false, 1, 3);
                     }
                     loadEventsForSelectedDate();
                 })

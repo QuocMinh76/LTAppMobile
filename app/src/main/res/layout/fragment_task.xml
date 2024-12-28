@@ -9,27 +9,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="@color/cardview_dark_background">
-
-        <TextView
-            android:id="@+id/textView_welcome_message"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="8"
-            android:gravity="center_vertical"
-            android:layout_margin="4dp"
-            android:textColor="@color/cardview_light_background"
-            android:text="Chao mung"
-            android:textSize="20dp"
-            android:layout_marginLeft="6dp"/>
+        android:background="@color/lavender">
 
         <ImageButton
-            android:id="@+id/imageButton_add_category"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:src="@drawable/ic_add"
-            android:contentDescription="More options"/>
+            android:backgroundTint="@color/lavender"
+            android:layout_margin="2dp"
+            android:src="@drawable/ic_details_task"/>
+
     </LinearLayout>
 
 
@@ -49,14 +37,29 @@
     </ScrollView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add_category"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start|bottom"
+        android:layout_margin="16dp"
+        android:tooltipText="Add new category"
+        android:elevation="10dp"
+        android:visibility="visible"
+        android:src="@drawable/ic_add_cates"
+        android:background="@drawable/lavender_border"
+        android:backgroundTint="@color/white"
+        android:contentDescription="Add new category"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_add_task"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
         android:layout_margin="16dp"
-        android:src="@drawable/ic_add"
+        android:src="@drawable/ic_add_task"
         android:elevation="10dp"
         android:visibility="visible"
+        android:backgroundTint="@color/white"
         android:contentDescription="Add new task"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
