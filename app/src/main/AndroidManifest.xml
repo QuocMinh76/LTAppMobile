@@ -48,6 +48,11 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".TaskDetailsActivity"
+            android:exported="true">
+        </activity>
+
     </application>
 
 </manifest>
