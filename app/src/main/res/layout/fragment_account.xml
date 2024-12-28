@@ -54,6 +54,14 @@
             android:layout_marginTop="10dp" />
 
         <Button
+            android:id="@+id/btnEditNotificationTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Chỉnh sửa thời gian thông báo"
+            android:layout_marginTop="16dp" />
+
+
+        <Button
             android:id="@+id/btnDelete"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
