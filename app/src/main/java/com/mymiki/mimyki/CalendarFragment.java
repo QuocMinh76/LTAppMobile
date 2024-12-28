@@ -194,9 +194,9 @@ public class CalendarFragment extends Fragment {
                         }
                         cursor.close();
 
-                        dbHelper.addEvent(eventName, description, datetime, location, "Khác", cateId, user_id);
+                        dbHelper.addEvent(eventName, description, datetime, location, false, 1, cateId, user_id); // Thêm userId thực tế
                     } else {
-                        dbHelper.updateEvent(eventId, eventName, description, datetime, location, "Khác");
+                        dbHelper.updateEvent(eventId, eventName, description, datetime, location, false, 1);
                     }
                     loadEventsForSelectedDate();
                 })

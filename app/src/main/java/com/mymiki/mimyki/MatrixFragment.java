@@ -109,6 +109,8 @@ public class MatrixFragment extends Fragment {
     }
 
     private void setupFunctionality() {
+        loadEvents(); // Tải dữ liệu từ SQLite
+
         setupDragAndDrop(listQuadrant1, quadrant1Tasks, quadrant1Adapter);
         setupDragAndDrop(listQuadrant2, quadrant2Tasks, quadrant2Adapter);
         setupDragAndDrop(listQuadrant3, quadrant3Tasks, quadrant3Adapter);
@@ -153,6 +155,11 @@ public class MatrixFragment extends Fragment {
     }
 
     private void addTaskToQuadrant(String taskContent, int priority) {
+
+        // Thêm vào SQLite
+        dbHelper.addEvent(taskContent, "", "", "", false, priority, 1, user_id); //Để tạm cate_id = 1
+
+        // Thêm vào danh sách hiển thị
         switch (priority) {
             case 0:
                 quadrant1Tasks.add(taskContent);
@@ -252,4 +259,40 @@ public class MatrixFragment extends Fragment {
         SharedPreferences sharedPref = getActivity().getSharedPreferences("com.example.myapp.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE);
         return sharedPref.getInt("user_id", -1);
     }
+
+    private void loadEvents() {
+        Cursor cursor = dbHelper.getAllEvents();
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                String taskContent = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EVENT_NAME));
+                String priorityTag = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_PRIORITY_TAG));
+
+                // Phân loại theo mức độ ưu tiên
+                switch (priorityTag) {
+                    case "Khẩn cấp":
+                        quadrant1Tasks.add(taskContent);
+                        break;
+                    case "Quan trọng":
+                        quadrant2Tasks.add(taskContent);
+                        break;
+                    case "Bình thường":
+                        quadrant3Tasks.add(taskContent);
+                        break;
+                    case "Khác":
+                    default:
+                        quadrant4Tasks.add(taskContent);
+                        break;
+                }
+            } while (cursor.moveToNext());
+
+            cursor.close();
+        }
+
+        // Cập nhật giao diện
+        quadrant1Adapter.notifyDataSetChanged();
+        quadrant2Adapter.notifyDataSetChanged();
+        quadrant3Adapter.notifyDataSetChanged();
+        quadrant4Adapter.notifyDataSetChanged();
+    }
+
 }
