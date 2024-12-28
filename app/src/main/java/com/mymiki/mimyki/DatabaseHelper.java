@@ -483,6 +483,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return -1; // Category not found
     }
 
+    public void updateEventPriority(String eventName, int newPriority, int user_id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_PRIORITY_TAG, newPriority);
+        db.update(TABLE_EVENTS, values, COLUMN_EVENT_NAME + " = ? AND " + COLUMN_USER_ID + " = ?",
+                new String[]{eventName, String.valueOf(user_id)});
+    }
+
+
 }
 
 
