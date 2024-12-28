@@ -1,6 +1,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/white"
     android:orientation="vertical"
     android:padding="16dp">
 
@@ -9,19 +10,22 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Nhập nội dung công việc"
-        android:inputType="text" />
+        android:inputType="text"
+        android:padding="12dp" />
 
     <Spinner
         android:id="@+id/spinner_priority"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="16dp"
+        android:padding="12dp" />
 
     <Button
         android:id="@+id/btn_select_datetime"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Chọn ngày và giờ" />
+        android:text="Chọn ngày và giờ"
+        android:textColor="@color/white" />
 
 </LinearLayout>

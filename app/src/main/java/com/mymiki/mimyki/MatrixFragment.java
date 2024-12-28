@@ -188,7 +188,12 @@ public class MatrixFragment extends Fragment {
     private void addTaskToQuadrant(String taskContent, int priority, String dateTime) {
         // Thêm vào SQLite
         dbHelper.addEvent(taskContent, "", dateTime, "", false, priority, 1, user_id); //Để tạm cate_id = 1
+        // Lấy thời gian thông báo từ SharedPreferences
+        SharedPreferences sharedPref = getActivity().getSharedPreferences("com.example.myapp.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE);
+        int offsetMinutes = sharedPref.getInt("notification_offset", 1);
 
+        // Lên lịch thông báo
+        NotificationScheduler.scheduleNotification(getContext(), taskContent, dateTime, offsetMinutes);
         // Thêm vào danh sách hiển thị
         switch (priority) {
             case 0:
@@ -286,6 +291,7 @@ public class MatrixFragment extends Fragment {
             if (!updatedTask.isEmpty()) {
                 taskList.set(position, updatedTask);
                 adapter.notifyDataSetChanged();
+                dbHelper.updateEventContent(currentTask, updatedTask, user_id); // Update the task in the database
                 dialog.dismiss();
                 Toast.makeText(getContext(), "Đã cập nhật công việc", Toast.LENGTH_SHORT).show();
             } else {
@@ -294,8 +300,10 @@ public class MatrixFragment extends Fragment {
         });
 
         btnDelete.setOnClickListener(v -> {
+            NotificationScheduler.cancelNotification(getContext(), currentTask);
             taskList.remove(position);
             adapter.notifyDataSetChanged();
+            dbHelper.deleteEvent(currentTask, user_id); // Delete the task from the database
             dialog.dismiss();
             Toast.makeText(getContext(), "Đã xóa công việc", Toast.LENGTH_SHORT).show();
         });
@@ -339,6 +347,7 @@ public class MatrixFragment extends Fragment {
         quadrant2Adapter.notifyDataSetChanged();
         quadrant3Adapter.notifyDataSetChanged();
         quadrant4Adapter.notifyDataSetChanged();
+
     }
 
 }
