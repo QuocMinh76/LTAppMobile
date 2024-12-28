@@ -1,8 +1,11 @@
 package com.mymiki.mimyki;
 
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -44,6 +47,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_USERNAME = "username";
     public static final String COLUMN_PASSWORD = "password";
     public static final String COLUMN_IS_PREMIUM = "is_premium";
+    public static final String COLUMN_NOTIFICATION_OFFSET = "notification_offset";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -57,7 +61,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_USER_NAME + " TEXT, "
                 + COLUMN_USERNAME + " TEXT UNIQUE, "
                 + COLUMN_PASSWORD + " TEXT, "
-                + COLUMN_IS_PREMIUM + " INTEGER DEFAULT 0)";
+                + COLUMN_IS_PREMIUM + " INTEGER DEFAULT 0, "
+                + COLUMN_NOTIFICATION_OFFSET + " INTEGER DEFAULT 1)";
         db.execSQL(CREATE_USER_TABLE);
 
         // Tạo bảng category
@@ -482,6 +487,64 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         return -1; // Category not found
     }
+
+    public void updateEventPriority(String eventName, int newPriority, int user_id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_PRIORITY_TAG, newPriority);
+        db.update(TABLE_EVENTS, values, COLUMN_EVENT_NAME + " = ? AND " + COLUMN_USER_ID + " = ?",
+                new String[]{eventName, String.valueOf(user_id)});
+    }
+
+    public void updateEventContent(String oldContent, String newContent, int userId) {
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_EVENT_NAME, newContent);
+        getWritableDatabase().update(TABLE_EVENTS, values, COLUMN_EVENT_NAME + " = ? AND " + COLUMN_USER_ID + " = ?", new String[]{oldContent, String.valueOf(userId)});
+    }
+
+    public void deleteEvent(String content, int userId) {
+        getWritableDatabase().delete(TABLE_EVENTS, COLUMN_EVENT_NAME + " = ? AND " + COLUMN_USER_ID + " = ?", new String[]{content, String.valueOf(userId)});
+    }
+    public void updateUserNotificationOffset(int userId, int offsetMinutes) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("notification_offset", offsetMinutes);
+        db.update(TABLE_USER, values, COLUMN_USER_ID_TABLE + " = ?", new String[]{String.valueOf(userId)});
+    }
+
+    public static void cancelNotification(Context context, String eventName) {
+        Intent intent = new Intent(context, NotificationReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                context, eventName.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT
+        );
+
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        if (alarmManager != null) {
+            alarmManager.cancel(pendingIntent); // Hủy thông báo
+        }
+    }
+
+    public String getEventTimeById(int eventId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(
+                TABLE_EVENTS,
+                new String[]{COLUMN_DATETIME},
+                COLUMN_EVENT_ID + " = ?",
+                new String[]{String.valueOf(eventId)},
+                null, null, null
+        );
+
+        if (cursor != null && cursor.moveToFirst()) {
+            String eventTime = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DATETIME));
+            cursor.close();
+            return eventTime;
+        }
+        return null;
+    }
+
+
+
+
 
 }
 

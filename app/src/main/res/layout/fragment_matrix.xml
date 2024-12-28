@@ -6,114 +6,145 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:padding="16dp">
 
         <androidx.cardview.widget.CardView
             android:id="@+id/quadrant1"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_margin="5dp"
-            android:orientation="vertical"
-            android:padding="100dp"
-            app:cardCornerRadius="15dp"
-            app:cardElevation="5dp"
+            android:layout_margin="4dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
             app:layout_constraintBottom_toTopOf="@+id/guideline_horizontal"
             app:layout_constraintEnd_toStartOf="@+id/guideline_vertical"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="5dp"
-                android:text="KHẨN CẤP"
-                android:textAlignment="center" />
-
-            <ListView
-                android:id="@+id/list_quadrant1"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:paddingTop="20dp" />
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="4dp"
+                    android:text="KHẨN CẤP"
+                    android:textAlignment="center" />
+
+                <ListView
+                    android:id="@+id/list_quadrant1"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:paddingTop="4dp" />
+            </LinearLayout>
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
             android:id="@+id/quadrant2"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_margin="5dp"
-            android:orientation="vertical"
-            android:padding="100dp"
-            app:cardCornerRadius="15dp"
-            app:cardElevation="5dp"
+            android:layout_margin="4dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
             app:layout_constraintBottom_toTopOf="@+id/guideline_horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/guideline_vertical"
             app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="5dp"
-                android:text="QUAN TRỌNG"
-                android:textAlignment="center" />
-
-            <ListView
-                android:id="@+id/list_quadrant2"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:padding="20dp"
-                />
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="4dp"
+                    android:text="QUAN TRỌNG"
+                    android:textAlignment="center" />
+
+                <ListView
+                    android:id="@+id/list_quadrant2"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:paddingTop="4dp" />
+            </LinearLayout>
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
             android:id="@+id/quadrant3"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_margin="5dp"
-            android:orientation="vertical"
-            app:cardCornerRadius="15dp"
-            app:cardElevation="5dp"
+            android:layout_margin="4dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/guideline_vertical"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/guideline_horizontal">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="BÌNH THƯỜNG"
-                android:textAlignment="center" />
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="16dp">
 
-            <ListView
-                android:id="@+id/list_quadrant3"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="4dp"
+                    android:text="ƯU TIÊN"
+                    android:textAlignment="center"
+ />
+
+                <ListView
+                    android:id="@+id/list_quadrant3"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:paddingTop="4dp" />
+            </LinearLayout>
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
             android:id="@+id/quadrant4"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_margin="5dp"
-            android:orientation="vertical"
-            app:cardCornerRadius="15dp"
-            app:cardElevation="5dp"
+            android:layout_margin="4dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/guideline_vertical"
             app:layout_constraintTop_toBottomOf="@+id/guideline_horizontal">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="8dp"
-                android:text="KHÁC"
-                android:textAlignment="center" />
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="16dp">
 
-            <ListView
-                android:id="@+id/list_quadrant4"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="4dp"
+                    android:text="CẦN THIẾT"
+                    android:textAlignment="center"
+/>
+
+                <ListView
+                    android:id="@+id/list_quadrant4"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:paddingTop="4dp" />
+            </LinearLayout>
         </androidx.cardview.widget.CardView>
 
         <androidx.constraintlayout.widget.Guideline
@@ -140,6 +171,6 @@
         android:contentDescription="Add new task"
         android:elevation="10dp"
         android:src="@drawable/ic_add"
-        android:visibility="visible" />
+        android:tint="@color/white" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
