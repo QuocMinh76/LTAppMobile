@@ -155,25 +155,9 @@ public class MatrixFragment extends Fragment {
     }
 
     private void addTaskToQuadrant(String taskContent, int priority) {
-        String priorityTag;
-        switch (priority) {
-            case 0:
-                priorityTag = "Khẩn cấp";
-                break;
-            case 1:
-                priorityTag = "Quan trọng";
-                break;
-            case 2:
-                priorityTag = "Bình thường";
-                break;
-            case 3:
-            default:
-                priorityTag = "Khác";
-                break;
-        }
 
         // Thêm vào SQLite
-        dbHelper.addEvent(taskContent, "", "", "", priorityTag, -1, user_id);
+        dbHelper.addEvent(taskContent, "", "", "", false, priority, 1, user_id); //Để tạm cate_id = 1
 
         // Thêm vào danh sách hiển thị
         switch (priority) {
