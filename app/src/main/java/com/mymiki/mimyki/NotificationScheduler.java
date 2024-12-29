@@ -62,7 +62,7 @@ public class NotificationScheduler {
     public static void cancelNotification(Context context, String eventName) {
         Intent intent = new Intent(context, NotificationReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                context, eventName.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT
+                context, eventName.hashCode(), intent, PendingIntent.FLAG_IMMUTABLE
         );
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
