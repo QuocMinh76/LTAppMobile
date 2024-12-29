@@ -52,7 +52,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:text="@string/datetimeE"
-            android:textColor="#FF9800"
+            android:textColor="@color/purple_700"
             android:textSize="14sp" />
 
 

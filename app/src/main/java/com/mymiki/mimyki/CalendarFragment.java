@@ -3,6 +3,7 @@ package com.mymiki.mimyki;
 import android.annotation.SuppressLint;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -37,6 +39,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class CalendarFragment extends Fragment {
 
@@ -45,7 +48,8 @@ public class CalendarFragment extends Fragment {
     private FloatingActionButton addEventButton;
     private DatabaseHelper dbHelper;
     private String selectedDate;
-
+    private Button switchToWeekButton;
+    private Button switchToDailyButton;
     private int user_id = -1;
 
     @Nullable
@@ -56,8 +60,11 @@ public class CalendarFragment extends Fragment {
         calendarView = view.findViewById(R.id.calendarView);
         eventListView = view.findViewById(R.id.eventListView);
         addEventButton = view.findViewById(R.id.addEventButton);
+        switchToWeekButton = view.findViewById(R.id.switchToWeekButton);
+        switchToDailyButton = view.findViewById(R.id.switchToDailyButton);
         dbHelper = new DatabaseHelper(getContext());
         user_id = getUserIdFromSharedPreferences();
+
 
         if (user_id == -1) {
             Toast.makeText(getContext(), "Không xác định được người dùng. Vui lòng đăng nhập lại.", Toast.LENGTH_SHORT).show();
@@ -73,6 +80,22 @@ public class CalendarFragment extends Fragment {
 
         addEventButton.setOnClickListener(v -> openEventDialog(null));
 
+        switchToWeekButton.setOnClickListener(v -> {
+            WeekFragment weekFragment = new WeekFragment();
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, weekFragment)
+                    .addToBackStack(null)
+                    .commit();
+        });
+
+        switchToDailyButton.setOnClickListener(m -> {
+            DailyFragment dailyFragment = new DailyFragment();
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, dailyFragment)
+                    .addToBackStack(null)
+                    .commit();
+        });
+
         return view;
     }
 
@@ -84,9 +107,11 @@ public class CalendarFragment extends Fragment {
 
             while (cursor.moveToNext()) {
                 @SuppressLint("Range") String eventName = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_EVENT_NAME));
+                @SuppressLint("Range") String datetime = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_DATETIME));
                 @SuppressLint("Range") int eventId = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_EVENT_ID));
+
                 eventIds.add(eventId);
-                adapter.add(eventName);
+                adapter.add("• " + eventName + " - " + datetime);
             }
 
             cursor.close();
@@ -112,7 +137,6 @@ public class CalendarFragment extends Fragment {
             noEventsTextView.setVisibility(View.VISIBLE);
         }
     }
-
     @SuppressLint("Range")
     private void openEventDialog(@Nullable Integer eventId) {
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_event, null);
@@ -124,8 +148,11 @@ public class CalendarFragment extends Fragment {
 
         Cursor categoryCursor = dbHelper.getAllCategories(user_id);
         ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item);
+        List<Integer> categoryIds = new ArrayList<>();
         while (categoryCursor.moveToNext()) {
+            int categoryId = categoryCursor.getInt(categoryCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_ID));
             categoryAdapter.add(categoryCursor.getString(categoryCursor.getColumnIndex(DatabaseHelper.COLUMN_CATEGORY_NAME)));
+            categoryIds.add(categoryId);
         }
         categoryCursor.close();
         categorySpinner.setAdapter(categoryAdapter);
@@ -137,13 +164,17 @@ public class CalendarFragment extends Fragment {
             if (eventId != null) {
                 Cursor eventCursor = dbHelper.getEventById(eventId, user_id);
                 if (eventCursor != null && eventCursor.moveToFirst()) {
-                    String[] datetimeParts = eventCursor.getString(eventCursor.getColumnIndex(DatabaseHelper.COLUMN_DATETIME)).split(" ");
+                    eventNameInput.setText(eventCursor.getString(eventCursor.getColumnIndex(DatabaseHelper.COLUMN_EVENT_NAME)));
+                    descriptionInput.setText(eventCursor.getString(eventCursor.getColumnIndex(DatabaseHelper.COLUMN_DESCRIPTION)));
+                    locationInput.setText(eventCursor.getString(eventCursor.getColumnIndex(DatabaseHelper.COLUMN_LOCATION)));
+
+                    String datetime = eventCursor.getString(eventCursor.getColumnIndex(DatabaseHelper.COLUMN_DATETIME));
+                    String[] datetimeParts = datetime.split(" ");
                     if (datetimeParts.length == 2) {
-                        String[] timeParts = datetimeParts[1].split(":");
-                        if (timeParts.length == 2) {
-                            hour = Integer.parseInt(timeParts[0]);
-                            minute = Integer.parseInt(timeParts[1]);
-                        }
+                        String eventDate = datetimeParts[0];
+                        String eventTime = datetimeParts[1];
+                        selectedDate = eventDate;
+                        timeButton.setText(eventTime);
                     }
                     eventCursor.close();
                 }
@@ -180,6 +211,8 @@ public class CalendarFragment extends Fragment {
                     String time = timeButton.getText().toString();
                     String location = locationInput.getText().toString();
                     String categoryName = categorySpinner.getSelectedItem().toString();
+                    int selectedCategoryPosition = categorySpinner.getSelectedItemPosition();
+                    int selectedCategoryId = categoryIds.get(selectedCategoryPosition);
 
                     String datetime = selectedDate + " " + time;
 
@@ -204,7 +237,9 @@ public class CalendarFragment extends Fragment {
                         // Lên lịch thông báo
                         NotificationScheduler.scheduleNotification(getContext(), taskContent, datetime, offsetMinutes);
                     } else {
-                        dbHelper.updateEvent(eventId, eventName, description, datetime, location, false, 1, 3);
+                        int taskCurrentPriority = dbHelper.getTaskPriority(eventName, user_id);
+
+                        dbHelper.updateEvent(eventId, eventName, description, datetime, location, false, selectedCategoryId, taskCurrentPriority);
                     }
                     loadEventsForSelectedDate();
                 })

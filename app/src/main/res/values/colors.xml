@@ -20,4 +20,6 @@
     <color name="teal_700">#FF018786</color>
     <color name="lavender">#8692f7</color>
     <color name="lavendernhat">#e9d9fc</color>
+    <color name="red">#f50202</color>
+    <color name="pink">#db0259</color>
 </resources>
