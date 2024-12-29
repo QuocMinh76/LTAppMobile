@@ -298,55 +298,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.delete(TABLE_EVENTS, COLUMN_EVENT_ID + " = ?", new String[]{String.valueOf(eventId)});
         db.close();
     }
-
-    // Create: Add a new priority
-    public void addPriority(String priorityName) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_PRIORITY_NAME, priorityName);
-
-        db.insert(TABLE_PRIORITY, null, values);
-        db.close();
-    }
-
-    // Read: Get all priorities
-    public Cursor getAllPriorities() {
-        SQLiteDatabase db = this.getReadableDatabase();
-        return db.query(TABLE_PRIORITY, null, null, null, null, null, null);
-    }
-
-    // Update: Update a priority
-    public int updatePriority(int priorityId, String newPriorityName) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_PRIORITY_NAME, newPriorityName);
-
-        int rowsAffected = db.update(TABLE_PRIORITY, values, COLUMN_PRIORITY_ID + " = ?",
-                new String[]{String.valueOf(priorityId)});
-        db.close();
-        return rowsAffected; // Number of rows affected
-    }
-
-    // Delete: Delete a priority
-    public int deletePriority(int priorityId) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        int rowsDeleted = db.delete(TABLE_PRIORITY, COLUMN_PRIORITY_ID + " = ?",
-                new String[]{String.valueOf(priorityId)});
-        db.close();
-        return rowsDeleted; // Number of rows deleted
-    }
-
-    public Cursor getEventsByDate(String selectedDate) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        return db.query(
-                TABLE_EVENTS, // Tên bảng sự kiện
-                null,
-                "DATE(" + COLUMN_DATETIME + ") = ?",
-                new String[]{selectedDate},
-                null, null, null
-        );
-    }
-
     public Cursor getEventById(int eventId) {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.query(
@@ -376,24 +327,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 null, // HAVING
                 null // ORDER BY
         );
-    }
-
-
-    public Cursor getCategoriesByUser(int userId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        return db.query(
-                TABLE_CATEGORY, // Tên bảng
-                null, // Lấy tất cả các cột
-                COLUMN_CATEGORY_USER_ID + " = ?", // Điều kiện WHERE
-                new String[]{String.valueOf(userId)}, // Giá trị của điều kiện WHERE
-                null, // GROUP BY
-                null, // HAVING
-                null // ORDER BY
-        );
-
-    public Cursor getEventsByDate(String date, int userId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        return db.rawQuery("SELECT * FROM events WHERE date(datetime) = ? AND user_id = ?", new String[]{date, String.valueOf(userId)});
     }
 
     public Cursor getAllCategories(int userId) {
@@ -480,15 +413,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 priorityName = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PRIORITY_NAME));
             }
         } catch (Exception e) {
-            e.printStackTrace(); // Log the exception
+            e.printStackTrace();
         } finally {
             if (cursor != null) {
-                cursor.close(); // Close the cursor to avoid memory leaks
+                cursor.close();
             }
-            db.close(); // Close the database
+            db.close();
         }
 
-        return priorityName; // Return the retrieved priority name
+        return priorityName;
     }
 
     public int getDefaultCategoryId(int userId) {
@@ -525,39 +458,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return categoryId; // Return the retrieved category ID
     }
 
-    public int getPriorityIdByEventId(int eventId) {
-        int priorityId = -1; // Default value to indicate no priority found
-        SQLiteDatabase db = this.getReadableDatabase(); // Open the database in read mode
-        Cursor cursor = null;
-
-        try {
-            // Query to retrieve the priority ID of the event
-            cursor = db.query(
-                    TABLE_EVENTS,                     // Table name
-                    new String[]{COLUMN_PRIORITY_TAG}, // Column to retrieve
-                    COLUMN_EVENT_ID + " = ?",         // WHERE clause
-                    new String[]{String.valueOf(eventId)}, // WHERE clause argument
-                    null,                             // GROUP BY
-                    null,                             // HAVING
-                    null                              // ORDER BY
-            );
-
-            if (cursor != null && cursor.moveToFirst()) {
-                // Retrieve the priority ID from the first row of the result
-                priorityId = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_PRIORITY_TAG));
-            }
-        } catch (Exception e) {
-            e.printStackTrace(); // Log the exception
-        } finally {
-            if (cursor != null) {
-                cursor.close(); // Close the cursor to avoid memory leaks
-            }
-            db.close(); // Close the database
-        }
-
-        return priorityId; // Return the retrieved priority ID
-    }
-
     public void updateTaskCategory(int taskId, int newCategoryId) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -586,24 +486,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (alarmManager != null) {
             alarmManager.cancel(pendingIntent); // Hủy thông báo
         }
-    }
-
-    public String getEventTimeById(int eventId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(
-                TABLE_EVENTS,
-                new String[]{COLUMN_DATETIME},
-                COLUMN_EVENT_ID + " = ?",
-                new String[]{String.valueOf(eventId)},
-                null, null, null
-        );
-
-        if (cursor != null && cursor.moveToFirst()) {
-            String eventTime = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DATETIME));
-            cursor.close();
-            return eventTime;
-        }
-        return null;
     }
 
     public String getTaskDescription(String taskName, int userId) {
@@ -700,38 +582,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return totalFinishedEvents;
     }
 
-    public Cursor getEventsByDateAndUser(String date, int userId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        // Truy vấn để lấy sự kiện theo date và user_id
-        String selection = "date = ? AND user_id = ?";
-        String[] selectionArgs = {date, String.valueOf(userId)};
-
-        return db.query(
-                TABLE_EVENTS,  // Tên bảng sự kiện
-                null,  // Lấy tất cả các cột
-                selection,  // Điều kiện lọc
-                selectionArgs,  // Giá trị lọc
-                null,  // Không cần group by
-                null,  // Không cần having
-                null   // Sắp xếp theo mặc định
-        );
-    }
-
-    public Cursor getEventsByHour(String selectedDate, String hour, int userId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        // Truy vấn sự kiện dựa trên ngày và giờ
-        String query = "SELECT * FROM events WHERE datetime LIKE ? AND user_id = ?";
-        String[] selectionArgs = new String[] { selectedDate + " " + hour + "%", String.valueOf(userId) };
-
-        return db.rawQuery(query, selectionArgs);
-    }
-
     public Cursor getEventsByDate(String date, int userId) {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("SELECT * FROM events WHERE date(datetime) = ? AND user_id = ? ORDER BY datetime ASC",
                 new String[]{date, String.valueOf(userId)});
+    }
 
     // Method to get the total number of unfinished events for a user
     public int getTotalUnfinishedEvents(int userId) {

@@ -126,9 +126,9 @@ public class TaskFragment extends Fragment {
         String unfinished = String.valueOf(dbHelper.getTotalUnfinishedEvents(user_id));
 
         welcomeMessage.setText("Chào mừng " + name);
-        totalEvents.setText("Tổng số công việc: " + total);
-        finishedEvents.setText("Công việc đã hoàn thành: " + finished);
-        unfinishedEvents.setText("Công việc chưa hoàn thành: " + unfinished);
+        totalEvents.setText("• Tổng số công việc: " + total);
+        finishedEvents.setText("• Công việc đã hoàn thành: " + finished);
+        unfinishedEvents.setText("• Công việc chưa hoàn thành: " + unfinished);
     }
 
     private void showAddCategoryDialog() {
