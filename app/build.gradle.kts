@@ -25,7 +25,7 @@ android {
             )
         }
     }
-    buildFeatures{
+    buildFeatures {
         viewBinding = true
     }
     compileOptions {
@@ -33,6 +33,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 }
+
 
 dependencies {
     implementation("androidx.appcompat:appcompat:1.7.0")
@@ -45,7 +46,8 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
     implementation("androidx.cardview:cardview:1.0.0")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
-    implementation ("com.google.android.material:material:1.12.0")
+    implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.cardview:cardview:1.0.0")
     implementation("com.daimajia.swipelayout:library:1.2.0")
+    implementation("com.google.android.gms:play-services-maps:19.0.0")
 }
