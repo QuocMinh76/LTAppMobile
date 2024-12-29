@@ -3,33 +3,91 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="12dp">
 
-    <EditText
-        android:id="@+id/task_name_edit"
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Task Name"/>
+        android:layout_height="40dp"
+        android:text="@string/eventInfo"
+        android:textSize="20sp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/listview_background"
+        android:textAlignment="center"
+        android:paddingTop="5dp"
+        android:textColor="@color/black"/>
 
-    <EditText
-        android:id="@+id/task_description_edit"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Description"/>
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:layout_marginTop="3dp"
+            android:text="@string/eventInfoName"></TextView>
+        <EditText
+            android:id="@+id/task_name_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Tên công việc"/>
+    </LinearLayout>
 
-    <EditText
-        android:id="@+id/task_date_edit"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Date"/>
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:layout_marginTop="3dp"
+            android:text="@string/eventInfoDes"></TextView>
+        <EditText
+            android:id="@+id/task_description_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Mô tả"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:height="56dp"
+            android:layout_marginTop="3dp"
+            android:text="@string/eventDate"></TextView>
+        <EditText
+            android:id="@+id/task_date_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Ngày giờ"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:height="56dp"
+            android:layout_marginTop="3dp"
+            android:text="@string/eventPriority"></TextView>
+        <EditText
+            android:id="@+id/priority_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="none"
+            android:hint="Mức độ ưu tiên"/>
+
+    </LinearLayout>
 
     <Spinner
         android:id="@+id/category_spinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-
-    <Spinner
-        android:id="@+id/priority_spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
@@ -37,11 +95,11 @@
         android:id="@+id/task_done_checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Task Done"/>
+        android:text="@string/doneCheckbox"/>
 
     <Button
         android:id="@+id/save_task_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Save"/>
+        android:text="@string/saveBtn"/>
 </LinearLayout>
