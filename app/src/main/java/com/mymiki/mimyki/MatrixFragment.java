@@ -58,12 +58,10 @@ public class MatrixFragment extends Fragment {
     ListView listQuadrant1, listQuadrant2, listQuadrant3, listQuadrant4;
     ArrayList<String> quadrant1Tasks, quadrant2Tasks, quadrant3Tasks, quadrant4Tasks;
     ArrayAdapter<String> quadrant1Adapter, quadrant2Adapter, quadrant3Adapter, quadrant4Adapter;
-    private int default_cate_id = -1;
     private int user_id = -1;
 
     private DatabaseHelper dbHelper;
     private DatabaseHelper databaseHelper;
-
     private FusedLocationProviderClient fusedLocationClient;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
@@ -151,8 +149,6 @@ public class MatrixFragment extends Fragment {
         listQuadrant4.setAdapter(quadrant4Adapter);
 
         user_id = getUserIdFromSharedPreferences();
-
-        default_cate_id = dbHelper.getDefaultCategoryId(user_id);
 
         // Kiểm tra quyền Premium
         if (!isUserPremium()) {

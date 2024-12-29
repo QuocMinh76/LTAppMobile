@@ -18,16 +18,7 @@
             android:name=".PurchaseActivity"
             android:exported="false" />
 
-        <meta-data
-            android:name="com.mapbox.maps.token"
-            android:value="sk.eyJ1IjoidHJhbmtpZXQtYXV0aCIsImEiOiJjbTU5ZGlhNWczcTZhMmtyMHA3OTNtdDB6In0._6wQMw5giIAYfSrlm0xV3A" /> <!-- <activity -->
-        <!-- android:name=".MainActivity" -->
-        <!-- android:exported="true" > -->
-        <!-- <intent-filter> -->
-        <!-- <action android:name="android.intent.action.MAIN" /> -->
-        <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-        <!-- </intent-filter> -->
-        <!-- </activity> -->
+
         <receiver android:name=".NotificationReceiver" />
 
         <activity
@@ -39,6 +30,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".RegisterActivity"
             android:exported="true"></activity>
@@ -51,6 +43,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".TaskDetailsActivity"
             android:exported="true"></activity>
