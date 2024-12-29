@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="@string/eventInfo"
+        android:textSize="20sp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/listview_background"
+        android:textAlignment="center"
+        android:paddingTop="5dp"
+        android:textColor="@color/black"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:layout_marginTop="3dp"
+            android:text="@string/eventInfoName"></TextView>
+
+        <EditText
+            android:id="@+id/task_name_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/eventName"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:layout_marginTop="3dp"
+            android:text="@string/eventInfoDes"></TextView>
+
+        <EditText
+            android:id="@+id/task_description_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/eventDes"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:height="56dp"
+            android:layout_marginTop="3dp"
+            android:text="@string/eventDate"></TextView>
+
+        <EditText
+            android:id="@+id/task_date_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/datetimeE"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:layout_marginTop="3dp"
+            android:text="@string/eventLocation"></TextView>
+
+        <EditText
+            android:id="@+id/task_location_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/eventLocationV"/>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_open_location_d"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"
+        android:padding="12dp"
+        android:text="@string/openLocationBtn" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:height="56dp"
+            android:layout_marginTop="3dp"
+            android:text="@string/eventPriority"></TextView>
+
+        <EditText
+            android:id="@+id/priority_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="none"
+            android:enabled="false"
+            android:hint="@string/eventPriorityE"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18dp"
+        android:layout_marginTop="7dp"
+        android:layout_marginBottom="10dp"
+        android:text="@string/eventInfoCate"></TextView>
+
+    <Spinner
+        android:id="@+id/category_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="@drawable/viewpaper_bkg"/>
+
+    <CheckBox
+        android:id="@+id/task_done_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/doneCheckbox"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="end|bottom">
+
+        <Button
+            android:id="@+id/save_task_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:text="@string/saveBtn"/>
+
+        <Button
+            android:id="@+id/cancel_task_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cancelBtn"/>
+
+    </LinearLayout>
+</LinearLayout>

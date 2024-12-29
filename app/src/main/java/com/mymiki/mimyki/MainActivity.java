@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        NotificationScheduler.createNotificationChannel(this);
 
         BottomNavigationView bottomNav = findViewById(R.id.bottom_nav_view);
         bottomNav.setOnNavigationItemSelectedListener(navListener);

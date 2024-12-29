@@ -1,5 +1,6 @@
 package com.mymiki.mimyki;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -10,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,6 +66,10 @@ public class AccountFragment extends Fragment {
         } else {
             Toast.makeText(getContext(), "Không tìm thấy thông tin người dùng!", Toast.LENGTH_SHORT).show();
         }
+
+        Button btnEditNotificationTime = view.findViewById(R.id.btnEditNotificationTime);
+        btnEditNotificationTime.setOnClickListener(v -> showEditNotificationTimeDialog());
+
 
         // Cập nhật thông tin người dùng
         btnUpdate.setOnClickListener(v -> {
@@ -149,5 +155,27 @@ public class AccountFragment extends Fragment {
     private int getUserIdFromSharedPreferences() {
         SharedPreferences sharedPref = getActivity().getSharedPreferences("com.example.myapp.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE);
         return sharedPref.getInt("user_id", -1);
+    }
+
+
+    private void showEditNotificationTimeDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Chỉnh sửa thời gian thông báo");
+
+        EditText input = new EditText(getContext());
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        input.setHint("Nhập số phút");
+        builder.setView(input);
+
+        builder.setPositiveButton("Lưu", (dialog, which) -> {
+            int offsetMinutes = Integer.parseInt(input.getText().toString());
+            dbHelper.updateUserNotificationOffset(userId, offsetMinutes); // Lưu vào DB
+            SharedPreferences sharedPref = getActivity().getSharedPreferences("com.example.myapp.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE);
+            sharedPref.edit().putInt("notification_offset", offsetMinutes).apply();
+            Toast.makeText(getContext(), "Cập nhật thành công!", Toast.LENGTH_SHORT).show();
+        });
+
+        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss());
+        builder.show();
     }
 }

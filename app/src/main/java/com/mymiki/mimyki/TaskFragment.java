@@ -7,21 +7,31 @@ import static com.mymiki.mimyki.DatabaseHelper.COLUMN_EVENT_DONE;
 import static com.mymiki.mimyki.DatabaseHelper.COLUMN_EVENT_ID;
 import static com.mymiki.mimyki.DatabaseHelper.COLUMN_EVENT_NAME;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 
+import android.util.Log;
+import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -30,22 +40,23 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.daimajia.swipe.SwipeLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 public class TaskFragment extends Fragment {
 
+    private static final int REQUEST_CODE_EDIT_TASK = 1;
     private int user_id = -1;
     private DatabaseHelper dbHelper;
     LinearLayout mainContainer;
+    TextView welcomeMessage, totalEvents, finishedEvents, unfinishedEvents;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -63,20 +74,61 @@ public class TaskFragment extends Fragment {
 
         // FloatingActionButton for adding tasks
         FloatingActionButton fabAddTask = rootView.findViewById(R.id.fab_add_task);
-        //Button addTask = findViewById(R.id.btn_add);
+
+        DrawerLayout drawerLayout = rootView.findViewById(R.id.drawer_layout);
+        ImageButton btnSidePanel = rootView.findViewById(R.id.btn_side_panel);
+
+        btnSidePanel.setOnClickListener(v -> {
+                updateTaskStatus();
+                drawerLayout.openDrawer(GravityCompat.START);
+        });
 
         // Main container in activity_main.xml
         mainContainer = rootView.findViewById(R.id.main_container);
 
-        ImageButton addCategoryButton = rootView.findViewById(R.id.imageButton_add_category);
+        FloatingActionButton addCategoryButton = rootView.findViewById(R.id.fab_add_category);
         addCategoryButton.setOnClickListener(v -> showAddCategoryDialog());
 
+        welcomeMessage = rootView.findViewById(R.id.welcome_textview);
+        totalEvents = rootView.findViewById(R.id.total_task_textview);
+        finishedEvents = rootView.findViewById(R.id.finished_task_textview);
+        unfinishedEvents = rootView.findViewById(R.id.unfinished_task_textview);
+
         // Set a click listener for the FAB
-        fabAddTask.setOnClickListener(v -> showAddTaskDialog());
+        fabAddTask.setOnClickListener(v -> showAddTaskDialog(null));
 
         displayCategoriesAndEvents(mainContainer);
 
+        refreshView();
+
         return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        refreshView();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_EDIT_TASK && resultCode == Activity.RESULT_OK) {
+            // The task was updated, so refresh the task list
+            refreshView();  // Your method to refresh the view
+        }
+    }
+
+    private void updateTaskStatus() {
+        String name = dbHelper.getUserNameById(user_id);
+        String total = String.valueOf(dbHelper.getTotalEvents(user_id));
+        String finished = String.valueOf(dbHelper.getTotalFinishedEvents(user_id));
+        String unfinished = String.valueOf(dbHelper.getTotalUnfinishedEvents(user_id));
+
+        welcomeMessage.setText("Chào mừng " + name);
+        totalEvents.setText("Tổng số công việc: " + total);
+        finishedEvents.setText("Công việc đã hoàn thành: " + finished);
+        unfinishedEvents.setText("Công việc chưa hoàn thành: " + unfinished);
     }
 
     private void showAddCategoryDialog() {
@@ -119,203 +171,152 @@ public class TaskFragment extends Fragment {
         builder.show();
     }
 
-    private void showAddTaskDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Thêm công việc");
+    private void showAddTaskDialog(@Nullable Integer taskId) {
+        // Inflate the custom dialog layout
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_event_add_task, null);
 
-        // Create a layout for the dialog
-        LinearLayout layout = createDialogLayout();
+        // Initialize input fields
+        EditText taskNameInput = dialogView.findViewById(R.id.eventNameInput_t);
+        EditText taskDescriptionInput = dialogView.findViewById(R.id.descriptionInput_t);
+        Button dateTimeButton = dialogView.findViewById(R.id.dateTimeInput_t);
+        EditText taskLocationInput = dialogView.findViewById(R.id.locationInput_t);
+        Spinner categorySpinner = dialogView.findViewById(R.id.categorySpinner_t);
 
-        // Event Name (Required)
-        final EditText taskNameInput = createEditText("Tên công việc (Bắt buộc)");
-        layout.addView(taskNameInput);
-
-        // Event Description (Optional)
-        final EditText taskDescriptionInput = createEditText("Mô tả");
-        layout.addView(taskDescriptionInput);
-
-        // Date & Time Selector (Optional, default to today's date and time)
-        final EditText taskDateTimeInput = createEditText("Ngày và Giờ");
-        taskDateTimeInput.setText(getCurrentDateTime());
-        setupDateTimeInput(taskDateTimeInput);
-        layout.addView(taskDateTimeInput);
-
-        // Event Location (Optional)
-        final EditText taskLocationInput = createEditText("Địa điểm");
-        layout.addView(taskLocationInput);
-
-        // Category Spinner
-        final Spinner categorySpinner = createCategorySpinner();
-        layout.addView(categorySpinner);
-
-        builder.setView(layout);
-
-        // Set up the buttons
-        builder.setPositiveButton("Thêm", (dialog, which) -> {
-            handleAddButtonClick(taskNameInput, taskDescriptionInput, taskDateTimeInput, taskLocationInput, categorySpinner);
-        });
-
-        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.cancel());
-
-        builder.show();
-    }
-
-    // Helper method to create dialog layout
-    private LinearLayout createDialogLayout() {
-        LinearLayout layout = new LinearLayout(getContext());
-        layout.setOrientation(LinearLayout.VERTICAL);
-        int padding = (int) (20 * getResources().getDisplayMetrics().density);
-        layout.setPadding(padding, padding, padding, padding);
-        layout.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT));
-        return layout;
-    }
-
-    // Helper method to create an EditText with a hint
-    private EditText createEditText(String hint) {
-        EditText editText = new EditText(getContext());
-        editText.setHint(hint);
-        editText.setPadding(20, 50, 20, 50); // Padding inside the EditText
-        return editText;
-    }
-
-    // Helper method to get the current date and time
-    private String getCurrentDateTime() {
-        Calendar calendar = Calendar.getInstance();
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(calendar.getTime());
-    }
-
-    // Helper method to set up Date & Time input
-    private void setupDateTimeInput(EditText taskDateTimeInput) {
-        taskDateTimeInput.setOnClickListener(v -> {
-            Calendar calendar = Calendar.getInstance();
-            DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(), (view, year, monthOfYear, dayOfMonth) -> {
-                TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(), (timeView, hourOfDay, minute) -> {
-                    String formattedDateTime = String.format(Locale.getDefault(), "%04d-%02d-%02d %02d:%02d",
-                            year, monthOfYear + 1, dayOfMonth, hourOfDay, minute);
-                    taskDateTimeInput.setText(formattedDateTime); // Set the formatted date-time
-                }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true);
-                timePickerDialog.show();
-            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-            datePickerDialog.show();
-        });
-    }
-
-    // Helper method to create the category spinner and populate it with categories
-    private Spinner createCategorySpinner() {
-        final Spinner categorySpinner = new Spinner(getContext());
-        List<String> categoryNames = new ArrayList<>();
-        final List<Integer> categoryIds = new ArrayList<>();
-        Cursor categoriesCursor = dbHelper.getCategoriesByUserId(user_id);
-        if (categoriesCursor != null && categoriesCursor.moveToFirst()) {
-            do {
-                String categoryName = categoriesCursor.getString(categoriesCursor.getColumnIndexOrThrow(COLUMN_CATEGORY_NAME));
-                int categoryId = categoriesCursor.getInt(categoriesCursor.getColumnIndexOrThrow(COLUMN_CATEGORY_ID));
-                categoryNames.add(categoryName);
-                categoryIds.add(categoryId); // Add category ID to the list
-            } while (categoriesCursor.moveToNext());
-            categoriesCursor.close();
+        // Populate the category spinner
+        Cursor categoryCursor = dbHelper.getCategoriesByUserId(user_id);
+        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item);
+        List<Integer> categoryIds = new ArrayList<>();
+        while (categoryCursor.moveToNext()) {
+            String categoryName = categoryCursor.getString(categoryCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_NAME));
+            int categoryId = categoryCursor.getInt(categoryCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_ID));
+            categoryAdapter.add(categoryName);
+            categoryIds.add(categoryId);
         }
-
-        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, categoryNames);
+        categoryCursor.close();
         categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         categorySpinner.setAdapter(categoryAdapter);
-        categorySpinner.setSelection(0); // Set default selection to the first category
-        return categorySpinner;
-    }
 
-    // Handle the "Add" button click and insert the new task
-    private void handleAddButtonClick(EditText taskNameInput, EditText taskDescriptionInput, EditText taskDateTimeInput,
-                                      EditText taskLocationInput, Spinner categorySpinner) {
-        String taskName = taskNameInput.getText().toString().trim();
-        String taskDescription = taskDescriptionInput.getText().toString().trim();
-        String taskDateTime = taskDateTimeInput.getText().toString().trim();
-        String taskLocation = taskLocationInput.getText().toString().trim();
-        String priority = "Khác"; // Hardcoded priority value
+        final String[] formattedDateTime = {""};
 
-        // Get selected category ID from the spinner
-        int selectedCategoryPosition = categorySpinner.getSelectedItemPosition();
-        List<Integer> categoryIds = getCategoryIds(); // Get category IDs list
-        int selectedCategoryId = categoryIds.get(selectedCategoryPosition);
+        // Set up Date & Time picker
+        dateTimeButton.setOnClickListener(v -> {
+            Calendar calendar = Calendar.getInstance();
+            // If editing, initialize with existing datetime
+            if (taskId != null) {
+                Cursor taskCursor = dbHelper.getEventById(taskId, user_id);
+                if (taskCursor != null && taskCursor.moveToFirst()) {
+                    String datetimeStr = taskCursor.getString(taskCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DATETIME));
+                    String[] datetimeParts = datetimeStr.split(" ");
+                    if (datetimeParts.length == 2) {
+                        String[] dateParts = datetimeParts[0].split("-");
+                        String[] timeParts = datetimeParts[1].split(":");
+                        if (dateParts.length == 3 && timeParts.length == 2) {
+                            int year = Integer.parseInt(dateParts[0]);
+                            int month = Integer.parseInt(dateParts[1]) - 1; // Months are 0-based
+                            int day = Integer.parseInt(dateParts[2]);
+                            int hour = Integer.parseInt(timeParts[0]);
+                            int minute = Integer.parseInt(timeParts[1]);
+                            calendar.set(year, month, day, hour, minute);
+                        }
+                    }
+                    taskCursor.close();
+                }
+            }
 
-        if (taskName.isEmpty()) {
-            Toast.makeText(getContext(), "Task name is required", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Add event to the database
-        dbHelper.addEvent(taskName, taskDescription, taskDateTime, taskLocation, false, 1, selectedCategoryId, user_id);
-
-        // Retrieve the event ID (after insertion) using a query
-        int eventId = dbHelper.getLastInsertedEventId();
-
-        if (eventId != -1) {
-            Toast.makeText(getContext(), "Task added", Toast.LENGTH_SHORT).show();
-            addTaskToLayout(taskName, eventId, false); // Pass event ID here
-        } else {
-            Toast.makeText(getContext(), "Error adding task", Toast.LENGTH_SHORT).show();
-        }
-
-        refreshView(); // Refresh the view after adding a task
-    }
-
-    // Helper method to get category IDs
-    private List<Integer> getCategoryIds() {
-        List<Integer> categoryIds = new ArrayList<>();
-        Cursor categoriesCursor = dbHelper.getCategoriesByUserId(user_id);
-        if (categoriesCursor != null && categoriesCursor.moveToFirst()) {
-            do {
-                categoryIds.add(categoriesCursor.getInt(categoriesCursor.getColumnIndexOrThrow(COLUMN_CATEGORY_ID)));
-            } while (categoriesCursor.moveToNext());
-            categoriesCursor.close();
-        }
-        return categoryIds;
-    }
-
-
-    private void addTaskToLayout(String taskName, int eventId, boolean isChecked) {
-        // Get the main container for tasks
-        LinearLayout mainContainer = getView().findViewById(R.id.main_container);
-
-        // Create a layout for the task with checkbox and label
-        LinearLayout taskLayout = createTaskLayout();
-
-        // Create and configure the checkbox for the task
-        CheckBox taskCheckBox = createTaskCheckBox(taskName, isChecked);
-
-        // Set up a listener to handle the checkbox status change
-        taskCheckBox.setOnCheckedChangeListener((buttonView, isChecked1) -> {
-            // Update the task status in the database using the event ID
-            dbHelper.updateTaskDoneStatus(eventId, isChecked1);
+            // Show DatePickerDialog
+            DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
+                    (view, year, monthOfYear, dayOfMonth) -> {
+                        // After selecting date, show TimePickerDialog
+                        TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(),
+                                (timeView, hourOfDay, minute) -> {
+                                    formattedDateTime[0] = String.format(Locale.getDefault(), "%04d-%02d-%02d %02d:%02d",
+                                            year, monthOfYear + 1, dayOfMonth, hourOfDay, minute);
+                                    dateTimeButton.setText(formattedDateTime[0]);
+                                },
+                                calendar.get(Calendar.HOUR_OF_DAY),
+                                calendar.get(Calendar.MINUTE),
+                                true);
+                        timePickerDialog.show();
+                    },
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH));
+            datePickerDialog.show();
         });
 
-        // Add the checkbox to the task layout
-        taskLayout.addView(taskCheckBox);
+        // If editing an existing task, populate the fields with current data
+        if (taskId != null) {
+            Cursor taskCursor = dbHelper.getEventById(taskId, user_id);
+            if (taskCursor != null && taskCursor.moveToFirst()) {
+                taskNameInput.setText(taskCursor.getString(taskCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EVENT_NAME)));
+                taskDescriptionInput.setText(taskCursor.getString(taskCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DESCRIPTION)));
+                taskLocationInput.setText(taskCursor.getString(taskCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_LOCATION)));
+                String datetime = taskCursor.getString(taskCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DATETIME));
+                dateTimeButton.setText(datetime);
+                String categoryName = taskCursor.getString(taskCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATE_ID));
+                int categoryPosition = categoryAdapter.getPosition(categoryName);
+                if (categoryPosition >= 0) {
+                    categorySpinner.setSelection(categoryPosition);
+                }
+                taskCursor.close();
+            }
+        } else {
+            // If adding a new task, set the current datetime as default
+            String currentDateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date());
+            dateTimeButton.setText(currentDateTime);
+        }
 
-        // Add the task layout to the main container
-        mainContainer.addView(taskLayout);
+        // Build the AlertDialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setView(dialogView)
+                .setPositiveButton(taskId == null ? "Thêm" : "Sửa", (dialog, which) -> {
+                    String taskName = taskNameInput.getText().toString().trim();
+                    String taskDescription = taskDescriptionInput.getText().toString().trim();
+                    String taskDateTime = dateTimeButton.getText().toString().trim();
+                    String taskLocation = taskLocationInput.getText().toString().trim();
+                    String categoryName = categorySpinner.getSelectedItem().toString();
+                    int selectedCategoryPosition = categorySpinner.getSelectedItemPosition();
+                    int selectedCategoryId = categoryIds.get(selectedCategoryPosition);
+
+                    // Validate required fields
+                    if (taskName.isEmpty()) {
+                        Toast.makeText(getContext(), "Tên công việc là bắt buộc", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if (taskId == null) {
+                        // Adding a new task
+                        dbHelper.addEvent(taskName, taskDescription, taskDateTime, taskLocation, false, 4, selectedCategoryId, user_id);
+
+                        String taskContent = taskNameInput.getText().toString().trim();
+                        // Lấy thời gian thông báo từ SharedPreferences
+                        SharedPreferences sharedPref = getActivity().getSharedPreferences("com.example.myapp.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE);
+                        int offsetMinutes = sharedPref.getInt("notification_offset", 1);
+
+                        // Lên lịch thông báo
+                        NotificationScheduler.scheduleNotification(getContext(), taskContent, formattedDateTime[0], offsetMinutes);
+                        Toast.makeText(getContext(), "Công việc đã được thêm", Toast.LENGTH_SHORT).show();
+                    } else {
+                        // Updating an existing task
+                        dbHelper.updateEvent(taskId, taskName, taskDescription, taskDateTime, taskLocation, false, selectedCategoryId, 1);
+                        Toast.makeText(getContext(), "Công việc đã được cập nhật", Toast.LENGTH_SHORT).show();
+                    }
+
+                    // Refresh the task list or UI
+                    refreshView();
+                })
+                .setNegativeButton("Hủy", null)
+                .setNeutralButton("Xóa", (dialog, which) -> {
+                    if (taskId != null) {
+                        dbHelper.deleteEvent(taskId);
+                        Toast.makeText(getContext(), "Công việc đã được xóa", Toast.LENGTH_SHORT).show();
+                        refreshView();
+                    }
+                });
+
+        // Show the dialog
+        builder.create().show();
     }
-
-    // Helper method to create the main task layout
-    private LinearLayout createTaskLayout() {
-        LinearLayout taskLayout = new LinearLayout(getContext());
-        taskLayout.setOrientation(LinearLayout.HORIZONTAL);
-        taskLayout.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT));
-        taskLayout.setPadding(0, 10, 0, 10);
-        return taskLayout;
-    }
-
-    // Helper method to create and configure the checkbox
-    private CheckBox createTaskCheckBox(String taskName, boolean isChecked) {
-        CheckBox taskCheckBox = new CheckBox(getContext());
-        taskCheckBox.setChecked(isChecked);
-        taskCheckBox.setText(taskName);
-        return taskCheckBox;
-    }
-
 
     private void refreshView() {
         // Clear the current view (container)
@@ -328,6 +329,7 @@ public class TaskFragment extends Fragment {
             do {
                 // Get category name from the cursor
                 String categoryName = categoriesCursor.getString(categoriesCursor.getColumnIndexOrThrow(COLUMN_CATEGORY_NAME));
+                int categoryId = categoriesCursor.getInt(categoriesCursor.getColumnIndexOrThrow(COLUMN_CATEGORY_ID));
 
                 // Create a task group layout for each category
                 View categoryView = getLayoutInflater().inflate(R.layout.list_item_task_group, mainContainer, false);
@@ -337,11 +339,55 @@ public class TaskFragment extends Fragment {
                 categoryTitle.setText(categoryName);
 
                 // Find the container to add events for this category
-                LinearLayout eventContainer = categoryView.findViewById(R.id.task_container);
+                LinearLayout eventContainer = categoryView.findViewById(R.id.category_layout);
 
-                // Fetch events for this category using the category ID
-                int categoryId = categoriesCursor.getInt(categoriesCursor.getColumnIndexOrThrow(COLUMN_CATEGORY_ID));
+                eventContainer.setTag(categoryId); // Assign the category ID to the container
                 Cursor eventsCursor = dbHelper.getEventsByCategoryId(categoryId);
+
+                // Inside the loop where you're adding categories
+                categoryView.setOnLongClickListener(v -> {
+                    String currentCategoryName = ((TextView) v.findViewById(R.id.task_group_title)).getText().toString();
+                    showCategoryDialog(categoryId, currentCategoryName);
+                    return true;
+                });
+
+                // Set drop listener for category
+                eventContainer.setOnDragListener((v, event) -> {
+                    switch (event.getAction()) {
+                        case DragEvent.ACTION_DRAG_STARTED:
+                            return true;
+                        case DragEvent.ACTION_DRAG_ENTERED:
+                            eventContainer.setBackgroundColor(Color.LTGRAY);
+                            return true;
+                        case DragEvent.ACTION_DROP:
+                            // Get the task ID from ClipData
+                            ClipData.Item item = event.getClipData().getItemAt(0);
+                            int draggedTaskId = Integer.parseInt(item.getText().toString());
+
+                            // No need to remove the dragged view, as refreshView will reload the task's category
+                            // We just need to update the task's category in the database
+                            int newCategoryId = (int) v.getTag();  // Ensure the category's ID is stored in the view's tag
+
+                            // Check if the event container (category) is actually ready to accept the task
+                            if (v instanceof LinearLayout && ((LinearLayout) v).getChildCount() == 0) {
+                                // This category is empty, so we can safely drop the task here
+                                dbHelper.updateTaskCategory(draggedTaskId, newCategoryId);
+                                refreshView();
+                                return true;
+                            } else {
+                                // Handle the case where the category isn't empty (optional)
+                                dbHelper.updateTaskCategory(draggedTaskId, newCategoryId);
+                                refreshView();
+                                return true;
+                            }
+
+                        case DragEvent.ACTION_DRAG_ENDED:
+                            return true;
+
+                        default:
+                            return false;
+                    }
+                });
 
                 if (eventsCursor != null && eventsCursor.moveToFirst()) {
                     do {
@@ -353,11 +399,73 @@ public class TaskFragment extends Fragment {
                         boolean isDone = eventsCursor.getInt(eventsCursor.getColumnIndexOrThrow(COLUMN_EVENT_DONE)) == 1;
                         eventDone.setChecked(isDone);
 
+                        // Bind the event's ID to the delete and edit buttons
+                        int eventId = eventsCursor.getInt(eventsCursor.getColumnIndexOrThrow(COLUMN_EVENT_ID));
+
                         TextView eventDescription = eventView.findViewById(R.id.list_item_task_description);
                         eventDescription.setText(eventsCursor.getString(eventsCursor.getColumnIndexOrThrow(COLUMN_EVENT_NAME)));
 
                         TextView eventDate = eventView.findViewById(R.id.list_item_task_date);
                         eventDate.setText(eventsCursor.getString(eventsCursor.getColumnIndexOrThrow(COLUMN_DATETIME)));
+
+                        // Swipe layout initialization
+                        SwipeLayout swipeLayout = eventView.findViewById(R.id.swipe_layout);
+                        Button editButton = eventView.findViewById(R.id.task_edit);
+                        Button deleteButton = eventView.findViewById(R.id.task_delete);
+
+                        swipeLayout.addSwipeListener(new SwipeLayout.SwipeListener() {
+                            @Override
+                            public void onOpen(SwipeLayout layout) {
+                                // Swipe layout opened, disable click actions
+                                swipeLayout.setTag(true);  // Mark as open
+                            }
+
+                            @Override
+                            public void onClose(SwipeLayout layout) {
+                                // Swipe layout closed, enable click actions
+                                swipeLayout.setTag(false);  // Mark as closed
+                            }
+
+                            @Override
+                            public void onStartOpen(SwipeLayout layout) {}
+
+                            @Override
+                            public void onStartClose(SwipeLayout layout) {}
+
+                            @Override
+                            public void onUpdate(SwipeLayout layout, int leftOffset, int topOffset) {}
+
+                            @Override
+                            public void onHandRelease(SwipeLayout layout, float xvel, float yvel) {}
+                        });
+
+
+                        editButton.setOnClickListener(v -> showAddTaskDialog(eventId));
+
+                        deleteButton.setOnClickListener(v -> {
+                            NotificationScheduler.cancelNotification(getContext(), eventDescription.toString().trim());
+                            deleteTask(eventId);
+                        });
+
+                        eventView.setOnClickListener(v -> {
+                            // Open TaskDetailsActivity with the task ID
+                            if (swipeLayout.getTag() == null || !(Boolean) swipeLayout.getTag()) {
+                                Intent intent = new Intent(getContext(), TaskDetailsActivity.class);
+                                intent.putExtra("TASK_ID", eventId);
+                                intent.putExtra("USER_ID", user_id);
+                                startActivityForResult(intent, REQUEST_CODE_EDIT_TASK);
+                            }
+                        });
+
+                        eventView.setOnLongClickListener(v -> {
+                            if (swipeLayout.getTag() == null || !(Boolean) swipeLayout.getTag()) {
+                                ClipData clipData = ClipData.newPlainText("taskId", String.valueOf(eventId));
+                                View.DragShadowBuilder dragShadow = new View.DragShadowBuilder(v);
+                                eventView.startDrag(clipData, dragShadow, null, 0); // You can pass flags as 0
+                                Log.d("DragDrop", "Drag started for Task ID: " + eventId);
+                            }
+                            return true;
+                        });
 
                         // Add the event view to the event container
                         eventContainer.addView(eventView);
@@ -387,33 +495,66 @@ public class TaskFragment extends Fragment {
 
             categoriesCursor.close();
         }
+        updateTaskStatus();
     }
 
+    private void showCategoryDialog(final int categoryId, String currentCategoryName) {
+        // Inflate the dialog layout
+        View dialogView = getLayoutInflater().inflate(R.layout.category_edit_layout, null);
+        final EditText categoryNameInput = dialogView.findViewById(R.id.category_name_input);
+        final Button editButton = dialogView.findViewById(R.id.btn_edit);
+        final Button deleteButton = dialogView.findViewById(R.id.btn_delete);
+        Button cancelButton = dialogView.findViewById(R.id.btn_cancel);
 
-    private void loadCategories() {
-        Cursor cursor = dbHelper.getCategoriesByUserId(user_id);
+        // Set the current category name in the input field
+        categoryNameInput.setText(currentCategoryName);
 
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                int categoryId = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_CATEGORY_ID));
-                String categoryName = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CATEGORY_NAME));
-                // Display the category (e.g., add it to the UI)
-            } while (cursor.moveToNext());
-            cursor.close();
+        // Create the dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setView(dialogView);
+        final AlertDialog dialog = builder.create();
+
+        // Check if there are any events in the category
+        boolean hasEvents = dbHelper.hasEventsInCategory(categoryId);
+
+        // Disable the Delete button if there are events in the category
+        if (hasEvents) {
+            deleteButton.setEnabled(false);
+            deleteButton.setTextColor(Color.GRAY); // Optionally disable with color
+        } else {
+            deleteButton.setEnabled(true);
         }
-    }
 
-    private void loadEventsByCategory(int categoryId) {
-        Cursor cursor = dbHelper.getEventsByCategoryId(categoryId);
+        // Edit button click listener
+        editButton.setOnClickListener(v -> {
+            String newCategoryName = categoryNameInput.getText().toString().trim();
+            if (!newCategoryName.isEmpty()) {
+                dbHelper.updateCategory(categoryId, newCategoryName);
+                refreshView(); // Refresh the category list after renaming
+                dialog.dismiss();
+            } else {
+                // Show a warning or error message if the name is empty
+                Toast.makeText(getContext(), "Please enter a valid name", Toast.LENGTH_SHORT).show();
+            }
+        });
 
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                int eventId = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_EVENT_ID));
-                String eventName = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_EVENT_NAME));
-                // Display the event under the category
-            } while (cursor.moveToNext());
-            cursor.close();
-        }
+        // Delete button click listener
+        deleteButton.setOnClickListener(v -> {
+            if (!hasEvents) {
+                dbHelper.deleteCategory(categoryId);
+                refreshView(); // Refresh the category list after deletion
+                dialog.dismiss();
+            } else {
+                // Show a warning if there are events in the category
+                Toast.makeText(getContext(), "Không thể xóa phân loại này!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Cancel button click listener
+        cancelButton.setOnClickListener(v -> dialog.dismiss());
+
+        // Show the dialog
+        dialog.show();
     }
 
     private void displayCategoriesAndEvents(LinearLayout container) {
@@ -475,6 +616,13 @@ public class TaskFragment extends Fragment {
         }
     }
 
+    public void deleteTask(int taskId) {
+        // Delete the task from the database using the taskId
+        dbHelper.deleteEvent(taskId);
+
+        // Refresh the view to reflect the removal
+        refreshView();
+    }
 
     private int getUserIdFromSharedPreferences() {
         SharedPreferences sharedPref = getActivity().getSharedPreferences("com.example.myapp.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE);

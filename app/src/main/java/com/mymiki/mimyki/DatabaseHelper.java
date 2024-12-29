@@ -1,8 +1,11 @@
 package com.mymiki.mimyki;
 
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -44,6 +47,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_USERNAME = "username";
     public static final String COLUMN_PASSWORD = "password";
     public static final String COLUMN_IS_PREMIUM = "is_premium";
+    public static final String COLUMN_NOTIFICATION_OFFSET = "notification_offset";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -57,7 +61,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_USER_NAME + " TEXT, "
                 + COLUMN_USERNAME + " TEXT UNIQUE, "
                 + COLUMN_PASSWORD + " TEXT, "
-                + COLUMN_IS_PREMIUM + " INTEGER DEFAULT 0)";
+                + COLUMN_IS_PREMIUM + " INTEGER DEFAULT 0, "
+                + COLUMN_NOTIFICATION_OFFSET + " INTEGER DEFAULT 1)";
         db.execSQL(CREATE_USER_TABLE);
 
         // Tạo bảng category
@@ -80,10 +85,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String insertMediumPriority = "INSERT INTO " + TABLE_PRIORITY + " (" + COLUMN_PRIORITY_NAME + ") VALUES ('Quan trọng')";
         String insertHighPriority = "INSERT INTO " + TABLE_PRIORITY + " (" + COLUMN_PRIORITY_NAME + ") VALUES ('Khẩn cấp')";
 
-        db.execSQL(insertOtherPriority);
-        db.execSQL(insertLowPriority);
-        db.execSQL(insertMediumPriority);
         db.execSQL(insertHighPriority);
+        db.execSQL(insertMediumPriority);
+        db.execSQL(insertLowPriority);
+        db.execSQL(insertOtherPriority);
 
         // Tạo bảng events
         String CREATE_EVENTS_TABLE = "CREATE TABLE " + TABLE_EVENTS + " ("
@@ -273,7 +278,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Sửa sự kiện
-    public void updateEvent(int eventId, String event, String description, String datetime, String location, boolean isDone, int priorityTag) {
+    public void updateEvent(int eventId, String event, String description, String datetime, String location, boolean isDone, int categoryId, int priorityTag) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_EVENT_NAME, event);
@@ -281,6 +286,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_DATETIME, datetime);
         values.put(COLUMN_EVENT_DONE, isDone);
         values.put(COLUMN_LOCATION, location);
+        values.put(COLUMN_CATE_ID, categoryId);
         values.put(COLUMN_PRIORITY_TAG, priorityTag);
         db.update(TABLE_EVENTS, values, COLUMN_EVENT_ID + " = ?", new String[]{String.valueOf(eventId)});
         db.close();
@@ -306,7 +312,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // Read: Get all priorities
     public Cursor getAllPriorities() {
         SQLiteDatabase db = this.getReadableDatabase();
-        return db.query(TABLE_PRIORITY  , null, null, null, null, null, null);
+        return db.query(TABLE_PRIORITY, null, null, null, null, null, null);
     }
 
     // Update: Update a priority
@@ -359,28 +365,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.rawQuery("SELECT * FROM events WHERE id = ? AND user_id = ?", new String[]{String.valueOf(eventId), String.valueOf(userId)});
     }
 
-    public int getCategoryIdByName(String categoryName, int currentUserId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(
-                TABLE_CATEGORY, // Tên bảng
-                new String[]{COLUMN_CATEGORY_ID}, // Chỉ lấy cột categoryId
-                COLUMN_CATEGORY_NAME + " = ?", // Điều kiện WHERE
-                new String[]{categoryName}, // Giá trị của điều kiện WHERE
-                null, // GROUP BY
-                null, // HAVING
-                null // ORDER BY
-        );
-
-        if (cursor != null && cursor.moveToFirst()) {
-            @SuppressLint("Range") int categoryId = cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID));
-            cursor.close();
-            return categoryId;
-        }
-
-        // Trả về giá trị mặc định nếu không tìm thấy
-        return -1;
-    }
-
     public Cursor getEventsByUser(int userId) {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.query(
@@ -394,6 +378,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         );
     }
 
+
     public Cursor getCategoriesByUser(int userId) {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.query(
@@ -405,6 +390,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 null, // HAVING
                 null // ORDER BY
         );
+
+    public Cursor getEventsByDate(String date, int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM events WHERE date(datetime) = ? AND user_id = ?", new String[]{date, String.valueOf(userId)});
     }
 
     public Cursor getAllCategories(int userId) {
@@ -418,14 +407,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String selection = COLUMN_CATEGORY_USER_ID + " = ?";
         String[] selectionArgs = {String.valueOf(userId)};
         return db.query(TABLE_CATEGORY, null, selection, selectionArgs, null, null, null);
-    }
-
-    // Lấy danh sách sự kiện theo user_id
-    public Cursor getEventsByUserId(int userId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String selection = COLUMN_USER_ID + " = ?";
-        String[] selectionArgs = {String.valueOf(userId)};
-        return db.query(TABLE_EVENTS, null, selection, selectionArgs, null, null, null);
     }
 
     // Lấy danh sách sự kiện theo category_id
@@ -443,39 +424,280 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.update(TABLE_EVENTS, values, COLUMN_EVENT_ID + " = ?", new String[]{String.valueOf(taskId)});
     }
 
-    public int getLastInsertedEventId() {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT last_insert_rowid()", null);
-        if (cursor != null && cursor.moveToFirst()) {
-            int eventId = cursor.getInt(0);
-            cursor.close();
-            return eventId;
-        }
-        return -1;  // Return -1 if no event ID is found
+    public void updateEventPriority(String eventName, int newPriority, int user_id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_PRIORITY_TAG, newPriority);
+        db.update(TABLE_EVENTS, values, COLUMN_EVENT_NAME + " = ? AND " + COLUMN_USER_ID + " = ?",
+                new String[]{eventName, String.valueOf(user_id)});
     }
 
-    public int getCategoryIdByNameAndUser(String categoryName, int userId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(
-                TABLE_CATEGORY,
-                new String[]{COLUMN_CATEGORY_ID},
-                COLUMN_CATEGORY_NAME + " = ? AND " + COLUMN_CATEGORY_USER_ID + " = ?",
-                new String[]{categoryName, String.valueOf(userId)},
-                null,
-                null,
-                null
-        );
+    public void updateEventContent(String oldTask, String newTask, String description, String location, int category, int priority, String dateTime, int userId) {
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_EVENT_NAME, newTask);
+        values.put(COLUMN_DESCRIPTION, description);
+        values.put(COLUMN_LOCATION, location);
+        values.put(COLUMN_CATE_ID, category);
+        values.put(COLUMN_PRIORITY_TAG, priority);
+        values.put(COLUMN_DATETIME, dateTime);
 
-        if (cursor != null && cursor.moveToFirst()) {
-            int categoryId = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_CATEGORY_ID));
-            cursor.close();
-            return categoryId;
+        String selection = COLUMN_EVENT_NAME + " = ? AND " + COLUMN_USER_ID + " = ?";
+        String[] selectionArgs = {oldTask, String.valueOf(userId)};
+
+        getWritableDatabase().update(TABLE_EVENTS, values, selection, selectionArgs);
+    }
+
+    public void deleteEvent(String content, int userId) {
+        getWritableDatabase().delete(TABLE_EVENTS, COLUMN_EVENT_NAME + " = ? AND " + COLUMN_USER_ID + " = ?", new String[]{content, String.valueOf(userId)});
+    }
+
+    public void updateUserNotificationOffset(int userId, int offsetMinutes) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("notification_offset", offsetMinutes);
+        db.update(TABLE_USER, values, COLUMN_USER_ID_TABLE + " = ?", new String[]{String.valueOf(userId)});
+    }
+
+    public String getPriorityNameById(int priorityId) {
+        String priorityName = null; // Variable to store the result
+        SQLiteDatabase db = this.getReadableDatabase(); // Open the database in read mode
+        Cursor cursor = null;
+
+        try {
+            // Query to select the priority name for the given ID
+            cursor = db.query(
+                    TABLE_PRIORITY,               // Table name
+                    new String[]{COLUMN_PRIORITY_NAME}, // Columns to retrieve
+                    COLUMN_PRIORITY_ID + "=?",     // WHERE clause
+                    new String[]{String.valueOf(priorityId)}, // WHERE clause arguments
+                    null,                          // GROUP BY
+                    null,                          // HAVING
+                    null                           // ORDER BY
+            );
+
+            if (cursor != null && cursor.moveToFirst()) {
+                // Retrieve the priority name from the first row of the result
+                priorityName = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PRIORITY_NAME));
+            }
+        } catch (Exception e) {
+            e.printStackTrace(); // Log the exception
+        } finally {
+            if (cursor != null) {
+                cursor.close(); // Close the cursor to avoid memory leaks
+            }
+            db.close(); // Close the database
         }
 
+        return priorityName; // Return the retrieved priority name
+    }
+
+    public int getDefaultCategoryId(int userId) {
+        int categoryId = -1; // Default value to indicate no category found
+        SQLiteDatabase db = this.getReadableDatabase(); // Open the database in read mode
+        Cursor cursor = null;
+
+        try {
+            // Query to get the first category of the user
+            cursor = db.query(
+                    "category",                       // Table name
+                    new String[]{"id"},               // Columns to retrieve
+                    "user = ?",                       // WHERE clause
+                    new String[]{String.valueOf(userId)}, // WHERE clause arguments
+                    null,                             // GROUP BY
+                    null,                             // HAVING
+                    "id ASC",                         // ORDER BY (first category created)
+                    "1"                               // LIMIT (only 1 row)
+            );
+
+            if (cursor != null && cursor.moveToFirst()) {
+                // Retrieve the category ID from the first row of the result
+                categoryId = cursor.getInt(cursor.getColumnIndexOrThrow("id"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace(); // Log the exception
+        } finally {
+            if (cursor != null) {
+                cursor.close(); // Close the cursor to avoid memory leaks
+            }
+            db.close(); // Close the database
+        }
+
+        return categoryId; // Return the retrieved category ID
+    }
+
+    public int getPriorityIdByEventId(int eventId) {
+        int priorityId = -1; // Default value to indicate no priority found
+        SQLiteDatabase db = this.getReadableDatabase(); // Open the database in read mode
+        Cursor cursor = null;
+
+        try {
+            // Query to retrieve the priority ID of the event
+            cursor = db.query(
+                    TABLE_EVENTS,                     // Table name
+                    new String[]{COLUMN_PRIORITY_TAG}, // Column to retrieve
+                    COLUMN_EVENT_ID + " = ?",         // WHERE clause
+                    new String[]{String.valueOf(eventId)}, // WHERE clause argument
+                    null,                             // GROUP BY
+                    null,                             // HAVING
+                    null                              // ORDER BY
+            );
+
+            if (cursor != null && cursor.moveToFirst()) {
+                // Retrieve the priority ID from the first row of the result
+                priorityId = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_PRIORITY_TAG));
+            }
+        } catch (Exception e) {
+            e.printStackTrace(); // Log the exception
+        } finally {
+            if (cursor != null) {
+                cursor.close(); // Close the cursor to avoid memory leaks
+            }
+            db.close(); // Close the database
+        }
+
+        return priorityId; // Return the retrieved priority ID
+    }
+
+    public void updateTaskCategory(int taskId, int newCategoryId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_CATE_ID, newCategoryId);
+        db.update(TABLE_EVENTS, values, COLUMN_EVENT_ID + " = ?", new String[]{String.valueOf(taskId)});
+        db.close();
+    }
+
+    public boolean hasEventsInCategory(int categoryId) {
+        // Query to check if there are events in the category
+        Cursor cursor = getEventsByCategoryId(categoryId);
+        boolean hasEvents = cursor != null && cursor.getCount() > 0;
         if (cursor != null) {
             cursor.close();
         }
-        return -1; // Category not found
+        return hasEvents;
+    }
+
+    public static void cancelNotification(Context context, String eventName) {
+        Intent intent = new Intent(context, NotificationReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                context, eventName.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT
+        );
+
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        if (alarmManager != null) {
+            alarmManager.cancel(pendingIntent); // Hủy thông báo
+        }
+    }
+
+    public String getEventTimeById(int eventId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(
+                TABLE_EVENTS,
+                new String[]{COLUMN_DATETIME},
+                COLUMN_EVENT_ID + " = ?",
+                new String[]{String.valueOf(eventId)},
+                null, null, null
+        );
+
+        if (cursor != null && cursor.moveToFirst()) {
+            String eventTime = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DATETIME));
+            cursor.close();
+            return eventTime;
+        }
+        return null;
+    }
+
+    public String getTaskDescription(String taskName, int userId) {
+        Cursor cursor = getReadableDatabase().query(TABLE_EVENTS, new String[]{COLUMN_DESCRIPTION},
+                COLUMN_EVENT_NAME + " = ? AND " + COLUMN_USER_ID + " = ?",
+                new String[]{taskName, String.valueOf(userId)}, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            String description = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DESCRIPTION));
+            cursor.close();
+            return description;
+        }
+        return null;
+    }
+
+    public String getTaskLocation(String taskName, int userId) {
+        Cursor cursor = getReadableDatabase().query(TABLE_EVENTS, new String[]{COLUMN_LOCATION},
+                COLUMN_EVENT_NAME + " = ? AND " + COLUMN_USER_ID + " = ?",
+                new String[]{taskName, String.valueOf(userId)}, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            String location = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_LOCATION));
+            cursor.close();
+            return location;
+        }
+        return null;
+    }
+
+    public int getTaskCategory(String taskName, int userId) {
+        Cursor cursor = getReadableDatabase().query(TABLE_EVENTS, new String[]{COLUMN_CATE_ID},
+                COLUMN_EVENT_NAME + " = ? AND " + COLUMN_USER_ID + " = ?",
+                new String[]{taskName, String.valueOf(userId)}, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            int category = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_CATE_ID));
+            cursor.close();
+            return category;
+        }
+        return -1;
+    }
+
+    public int getTaskPriority(String taskName, int userId) {
+        Cursor cursor = getReadableDatabase().query(TABLE_EVENTS, new String[]{COLUMN_PRIORITY_TAG},
+                COLUMN_EVENT_NAME + " = ? AND " + COLUMN_USER_ID + " = ?",
+                new String[]{taskName, String.valueOf(userId)}, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            int priority = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_PRIORITY_TAG));
+            cursor.close();
+            return priority;
+        }
+        return -1;
+    }
+
+    public String getTaskDateTime(String taskName, int userId) {
+        Cursor cursor = getReadableDatabase().query(TABLE_EVENTS, new String[]{COLUMN_DATETIME},
+                COLUMN_EVENT_NAME + " = ? AND " + COLUMN_USER_ID + " = ?",
+                new String[]{taskName, String.valueOf(userId)}, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            String dateTime = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DATETIME));
+            cursor.close();
+            return dateTime;
+        }
+        return null;
+    }
+
+    // Method to get the total number of events for a user
+    public int getTotalEvents(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT COUNT(*) FROM " + TABLE_EVENTS + " WHERE " + COLUMN_USER_ID + " = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
+        int totalEvents = 0;
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                totalEvents = cursor.getInt(0);
+            }
+            cursor.close();
+        }
+        db.close();
+        return totalEvents;
+    }
+
+    // Method to get the total number of finished events for a user
+    public int getTotalFinishedEvents(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT COUNT(*) FROM " + TABLE_EVENTS + " WHERE " + COLUMN_USER_ID + " = ? AND " + COLUMN_EVENT_DONE + " = 1";
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
+        int totalFinishedEvents = 0;
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                totalFinishedEvents = cursor.getInt(0);
+            }
+            cursor.close();
+        }
+        db.close();
+        return totalFinishedEvents;
     }
 
     public Cursor getEventsByDateAndUser(String date, int userId) {
@@ -510,6 +732,48 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("SELECT * FROM events WHERE date(datetime) = ? AND user_id = ? ORDER BY datetime ASC",
                 new String[]{date, String.valueOf(userId)});
+
+    // Method to get the total number of unfinished events for a user
+    public int getTotalUnfinishedEvents(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT COUNT(*) FROM " + TABLE_EVENTS + " WHERE " + COLUMN_USER_ID + " = ? AND " + COLUMN_EVENT_DONE + " = 0";
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
+        int totalUnfinishedEvents = 0;
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                totalUnfinishedEvents = cursor.getInt(0);
+            }
+            cursor.close();
+        }
+        db.close();
+        return totalUnfinishedEvents;
+    }
+
+    public String getUserNameById(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Define the query to get the user's name by ID
+        String query = "SELECT " + COLUMN_USER_NAME + " FROM " + TABLE_USER +
+                " WHERE " + COLUMN_USER_ID_TABLE + " = ?";
+
+        // Prepare the cursor to execute the query
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
+
+        String name = null;
+
+        if (cursor != null && cursor.moveToFirst()) {
+            // Get the user's name from the cursor
+            name = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_NAME));
+        }
+
+        // Close the cursor and database
+        if (cursor != null) {
+            cursor.close();
+        }
+        db.close();
+
+        return name;
     }
 }
 
