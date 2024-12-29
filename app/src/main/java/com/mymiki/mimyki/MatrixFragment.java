@@ -41,7 +41,7 @@ public class MatrixFragment extends Fragment {
     ListView listQuadrant1, listQuadrant2, listQuadrant3, listQuadrant4;
     ArrayList<String> quadrant1Tasks, quadrant2Tasks, quadrant3Tasks, quadrant4Tasks;
     ArrayAdapter<String> quadrant1Adapter, quadrant2Adapter, quadrant3Adapter, quadrant4Adapter;
-
+    private int default_cate_id = -1;
     private int user_id = -1;
 
     private DatabaseHelper dbHelper;
@@ -80,6 +80,8 @@ public class MatrixFragment extends Fragment {
         listQuadrant4.setAdapter(quadrant4Adapter);
 
         user_id = getUserIdFromSharedPreferences();
+
+        default_cate_id = dbHelper.getDefaultCategoryId(user_id);
 
         // Kiểm tra quyền Premium
         if (!isUserPremium()) {
@@ -187,7 +189,7 @@ public class MatrixFragment extends Fragment {
 
     private void addTaskToQuadrant(String taskContent, int priority, String dateTime) {
         // Thêm vào SQLite
-        dbHelper.addEvent(taskContent, "", dateTime, "", false, priority, 1, user_id); //Để tạm cate_id = 1
+        dbHelper.addEvent(taskContent, "", dateTime, "", false, priority, default_cate_id, user_id); //Để tạm cate_id = 1
         // Lấy thời gian thông báo từ SharedPreferences
         SharedPreferences sharedPref = getActivity().getSharedPreferences("com.example.myapp.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE);
         int offsetMinutes = sharedPref.getInt("notification_offset", 1);

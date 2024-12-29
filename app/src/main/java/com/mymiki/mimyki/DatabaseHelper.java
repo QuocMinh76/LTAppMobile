@@ -365,47 +365,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.rawQuery("SELECT * FROM events WHERE id = ? AND user_id = ?", new String[]{String.valueOf(eventId), String.valueOf(userId)});
     }
 
-    public int getCategoryIdByName(String categoryName, int currentUserId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(
-                TABLE_CATEGORY, // Tên bảng
-                new String[]{COLUMN_CATEGORY_ID}, // Chỉ lấy cột categoryId
-                COLUMN_CATEGORY_NAME + " = ?", // Điều kiện WHERE
-                new String[]{categoryName}, // Giá trị của điều kiện WHERE
-                null, // GROUP BY
-                null, // HAVING
-                null // ORDER BY
-        );
-
-        if (cursor != null && cursor.moveToFirst()) {
-            @SuppressLint("Range") int categoryId = cursor.getInt(cursor.getColumnIndex(COLUMN_CATEGORY_ID));
-            cursor.close();
-            return categoryId;
-        }
-
-        // Trả về giá trị mặc định nếu không tìm thấy
-        return -1;
-    }
-
     public Cursor getEventsByUser(int userId) {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.query(
                 TABLE_EVENTS, // Tên bảng
                 null, // Lấy tất cả các cột
                 COLUMN_USER_ID + " = ?", // Điều kiện WHERE
-                new String[]{String.valueOf(userId)}, // Giá trị của điều kiện WHERE
-                null, // GROUP BY
-                null, // HAVING
-                null // ORDER BY
-        );
-    }
-
-    public Cursor getCategoriesByUser(int userId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        return db.query(
-                TABLE_CATEGORY, // Tên bảng
-                null, // Lấy tất cả các cột
-                COLUMN_CATEGORY_USER_ID + " = ?", // Điều kiện WHERE
                 new String[]{String.valueOf(userId)}, // Giá trị của điều kiện WHERE
                 null, // GROUP BY
                 null, // HAVING
@@ -431,14 +396,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.query(TABLE_CATEGORY, null, selection, selectionArgs, null, null, null);
     }
 
-    // Lấy danh sách sự kiện theo user_id
-    public Cursor getEventsByUserId(int userId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String selection = COLUMN_USER_ID + " = ?";
-        String[] selectionArgs = {String.valueOf(userId)};
-        return db.query(TABLE_EVENTS, null, selection, selectionArgs, null, null, null);
-    }
-
     // Lấy danh sách sự kiện theo category_id
     public Cursor getEventsByCategoryId(int categoryId) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -452,41 +409,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(COLUMN_EVENT_DONE, isDone ? 1 : 0);
         db.update(TABLE_EVENTS, values, COLUMN_EVENT_ID + " = ?", new String[]{String.valueOf(taskId)});
-    }
-
-    public int getLastInsertedEventId() {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT last_insert_rowid()", null);
-        if (cursor != null && cursor.moveToFirst()) {
-            int eventId = cursor.getInt(0);
-            cursor.close();
-            return eventId;
-        }
-        return -1;  // Return -1 if no event ID is found
-    }
-
-    public int getCategoryIdByNameAndUser(String categoryName, int userId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(
-                TABLE_CATEGORY,
-                new String[]{COLUMN_CATEGORY_ID},
-                COLUMN_CATEGORY_NAME + " = ? AND " + COLUMN_CATEGORY_USER_ID + " = ?",
-                new String[]{categoryName, String.valueOf(userId)},
-                null,
-                null,
-                null
-        );
-
-        if (cursor != null && cursor.moveToFirst()) {
-            int categoryId = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_CATEGORY_ID));
-            cursor.close();
-            return categoryId;
-        }
-
-        if (cursor != null) {
-            cursor.close();
-        }
-        return -1; // Category not found
     }
 
     public void updateEventPriority(String eventName, int newPriority, int user_id) {
@@ -511,6 +433,73 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put("notification_offset", offsetMinutes);
         db.update(TABLE_USER, values, COLUMN_USER_ID_TABLE + " = ?", new String[]{String.valueOf(userId)});
+    }
+
+    public String getPriorityNameById(int priorityId) {
+        String priorityName = null; // Variable to store the result
+        SQLiteDatabase db = this.getReadableDatabase(); // Open the database in read mode
+        Cursor cursor = null;
+
+        try {
+            // Query to select the priority name for the given ID
+            cursor = db.query(
+                    TABLE_PRIORITY,               // Table name
+                    new String[]{COLUMN_PRIORITY_NAME}, // Columns to retrieve
+                    COLUMN_PRIORITY_ID + "=?",     // WHERE clause
+                    new String[]{String.valueOf(priorityId)}, // WHERE clause arguments
+                    null,                          // GROUP BY
+                    null,                          // HAVING
+                    null                           // ORDER BY
+            );
+
+            if (cursor != null && cursor.moveToFirst()) {
+                // Retrieve the priority name from the first row of the result
+                priorityName = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PRIORITY_NAME));
+            }
+        } catch (Exception e) {
+            e.printStackTrace(); // Log the exception
+        } finally {
+            if (cursor != null) {
+                cursor.close(); // Close the cursor to avoid memory leaks
+            }
+            db.close(); // Close the database
+        }
+
+        return priorityName; // Return the retrieved priority name
+    }
+
+    public int getDefaultCategoryId(int userId) {
+        int categoryId = -1; // Default value to indicate no category found
+        SQLiteDatabase db = this.getReadableDatabase(); // Open the database in read mode
+        Cursor cursor = null;
+
+        try {
+            // Query to get the first category of the user
+            cursor = db.query(
+                    "category",                       // Table name
+                    new String[]{"id"},               // Columns to retrieve
+                    "user = ?",                       // WHERE clause
+                    new String[]{String.valueOf(userId)}, // WHERE clause arguments
+                    null,                             // GROUP BY
+                    null,                             // HAVING
+                    "id ASC",                         // ORDER BY (first category created)
+                    "1"                               // LIMIT (only 1 row)
+            );
+
+            if (cursor != null && cursor.moveToFirst()) {
+                // Retrieve the category ID from the first row of the result
+                categoryId = cursor.getInt(cursor.getColumnIndexOrThrow("id"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace(); // Log the exception
+        } finally {
+            if (cursor != null) {
+                cursor.close(); // Close the cursor to avoid memory leaks
+            }
+            db.close(); // Close the database
+        }
+
+        return categoryId; // Return the retrieved category ID
     }
 
     public static void cancelNotification(Context context, String eventName) {

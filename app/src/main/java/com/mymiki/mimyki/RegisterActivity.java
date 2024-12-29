@@ -73,7 +73,7 @@ public class RegisterActivity extends AppCompatActivity {
                             "2025-01-01 00:00:00",
                             "Nhà của bạn",
                             false,
-                            3, // Assuming 'Khác' priority is ID 1
+                            3,
                             categoryId,
                             (int) userId
                     );

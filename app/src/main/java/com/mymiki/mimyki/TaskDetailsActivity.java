@@ -23,10 +23,12 @@ public class TaskDetailsActivity extends AppCompatActivity {
     private EditText taskNameEditText;
     private EditText taskDescriptionEditText;
     private EditText taskDateEditText;
+    private EditText taskPriorityEditText;
     private Spinner categorySpinner;
-    private Spinner prioritySpinner;
     private CheckBox taskDoneCheckBox;
     int priorityTag;
+    String priorityName;
+    List<Integer> categoryIds;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,8 +42,8 @@ public class TaskDetailsActivity extends AppCompatActivity {
         taskDescriptionEditText = findViewById(R.id.task_description_edit);
         taskDateEditText = findViewById(R.id.task_date_edit);
         categorySpinner = findViewById(R.id.category_spinner);
-        prioritySpinner = findViewById(R.id.priority_spinner);
         taskDoneCheckBox = findViewById(R.id.task_done_checkbox);
+        taskPriorityEditText = findViewById(R.id.priority_edit);
 
         // Get the task ID passed via Intent
         taskId = getIntent().getIntExtra("TASK_ID", -1);
@@ -80,9 +82,13 @@ public class TaskDetailsActivity extends AppCompatActivity {
             taskDateEditText.setText(taskDate);
             taskDoneCheckBox.setChecked(isTaskDone);
 
+            priorityName = dbHelper.getPriorityNameById(priorityTag);
+
+            taskPriorityEditText.setText(priorityName);
+
             Cursor categoryCursor = dbHelper.getCategoriesByUserId(user_id);
             ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
-            List<Integer> categoryIds = new ArrayList<>();
+            categoryIds = new ArrayList<>();
             while (categoryCursor.moveToNext()) {
                 String categoryName = categoryCursor.getString(categoryCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_NAME));
                 int categoryId = categoryCursor.getInt(categoryCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_ID));
@@ -102,21 +108,15 @@ public class TaskDetailsActivity extends AppCompatActivity {
         String taskDescription = taskDescriptionEditText.getText().toString();
         String taskDate = taskDateEditText.getText().toString();
         boolean isTaskDone = taskDoneCheckBox.isChecked();
-
-        // Get selected category and priority (spinners)
-        int categoryId = getCategoryIdFromSpinner();
+        int selectedCategoryPosition = categorySpinner.getSelectedItemPosition();
+        int selectedCategoryId = categoryIds.get(selectedCategoryPosition);
 
         // Update the task in the database
-        dbHelper.updateEvent(taskId, taskName, taskDescription, taskDate, "", isTaskDone, categoryId, priorityTag);
+        dbHelper.updateEvent(taskId, taskName, taskDescription, taskDate, "", isTaskDone, selectedCategoryId, priorityTag);
 
         setResult(Activity.RESULT_OK);
 
         // Return to the previous screen
         finish();
-    }
-
-    private int getCategoryIdFromSpinner() {
-        // Logic to get selected category ID from spinner
-        return 1; // For example
     }
 }
