@@ -104,10 +104,8 @@ public class AccountFragment extends Fragment {
 
         // Mua Premium
         btnBuyPremium.setOnClickListener(v -> {
-            dbHelper.updateUser(userId, etName.getText().toString(), etUsername.getText().toString(), true);
-            Toast.makeText(getContext(), "Bạn đã mua Premium thành công!", Toast.LENGTH_SHORT).show();
-            isPremium = true;
-            updatePremiumUI();
+            Intent intent = new Intent(getContext(), PurchaseActivity.class);
+            startActivity(intent);
         });
 
         swPremium.setOnCheckedChangeListener((buttonView, isChecked) -> {

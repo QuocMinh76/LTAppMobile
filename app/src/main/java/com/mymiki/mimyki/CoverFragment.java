@@ -1,6 +1,7 @@
 package com.mymiki.mimyki;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -40,12 +41,8 @@ public class CoverFragment extends Fragment {
         loadUserData(currentUserId);
         Button btnBuyPremium = view.findViewById(R.id.btn_buy_premium);
         btnBuyPremium.setOnClickListener(v -> {
-//            // Cập nhật thông tin Premium trong SQLite
-            dbHelper.updateUser(currentUserId, name, username, true);
-            Toast.makeText(getContext(), "Nâng cấp Premium thành công!", Toast.LENGTH_SHORT).show();
-
-            // Loại bỏ CoverFragment
-            getActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
+            Intent intent = new Intent(getContext(), PurchaseActivity.class);
+            startActivity(intent);
         });
 
         return view;
