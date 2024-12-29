@@ -1,65 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+<androidx.drawerlayout.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
-        android:id="@+id/header_section_task_page"
+    <!-- Main Content -->
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="@color/lavender">
+        android:layout_height="match_parent">
 
-        <ImageButton
+        <LinearLayout
+            android:id="@+id/header_section_task_page"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@color/lavender">
+
+            <ImageButton
+                android:id="@+id/btn_side_panel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/lavender"
+                android:layout_margin="2dp"
+                android:src="@drawable/ic_details_task" />
+
+        </LinearLayout>
+
+        <ScrollView
+            android:id="@+id/scrollView_section_task_page"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="45dp">
+
+            <LinearLayout
+                android:id="@+id/main_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp" />
+        </ScrollView>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_add_category"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/lavender"
-            android:layout_margin="2dp"
-            android:src="@drawable/ic_details_task"/>
+            android:layout_gravity="start|bottom"
+            android:layout_margin="16dp"
+            android:tooltipText="Add new category"
+            android:elevation="10dp"
+            android:visibility="visible"
+            android:src="@drawable/ic_add_cates"
+            android:background="@drawable/lavender_border"
+            android:backgroundTint="@color/white"
+            android:contentDescription="Add new category" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_add_task"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:layout_margin="16dp"
+            android:src="@drawable/ic_add_task"
+            android:elevation="10dp"
+            android:visibility="visible"
+            android:backgroundTint="@color/white"
+            android:contentDescription="Add new task" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <!-- Side Panel -->
+    <LinearLayout
+        android:id="@+id/side_panel"
+        android:layout_width="300dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Side Panel"
+            android:textSize="18sp"
+            android:textColor="@color/black"
+            android:gravity="center" />
+
+        <!-- Add other side panel items here -->
 
     </LinearLayout>
 
-
-    <ScrollView
-        android:id="@+id/scrollView_section_task_page"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#ffffff"
-        android:layout_marginTop="45dp">
-
-        <LinearLayout
-            android:id="@+id/main_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp" />
-    </ScrollView>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_add_category"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="start|bottom"
-        android:layout_margin="16dp"
-        android:tooltipText="Add new category"
-        android:elevation="10dp"
-        android:visibility="visible"
-        android:src="@drawable/ic_add_cates"
-        android:background="@drawable/lavender_border"
-        android:backgroundTint="@color/white"
-        android:contentDescription="Add new category"/>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_add_task"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end|bottom"
-        android:layout_margin="16dp"
-        android:src="@drawable/ic_add_task"
-        android:elevation="10dp"
-        android:visibility="visible"
-        android:backgroundTint="@color/white"
-        android:contentDescription="Add new task"/>
-
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.drawerlayout.widget.DrawerLayout>

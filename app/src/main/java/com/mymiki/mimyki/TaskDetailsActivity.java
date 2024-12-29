@@ -20,10 +20,8 @@ import java.util.List;
 public class TaskDetailsActivity extends AppCompatActivity {
     private DatabaseHelper dbHelper;
     private int taskId, user_id;
-    private EditText taskNameEditText;
-    private EditText taskDescriptionEditText;
-    private EditText taskDateEditText;
-    private EditText taskPriorityEditText;
+    private EditText taskNameEditText, taskDescriptionEditText,
+            taskDateEditText, taskPriorityEditText, taskLocationEditText;
     private Spinner categorySpinner;
     private CheckBox taskDoneCheckBox;
     int priorityTag;
@@ -44,6 +42,7 @@ public class TaskDetailsActivity extends AppCompatActivity {
         categorySpinner = findViewById(R.id.category_spinner);
         taskDoneCheckBox = findViewById(R.id.task_done_checkbox);
         taskPriorityEditText = findViewById(R.id.priority_edit);
+        taskLocationEditText = findViewById(R.id.task_location_edit);
 
         // Get the task ID passed via Intent
         taskId = getIntent().getIntExtra("TASK_ID", -1);
@@ -57,6 +56,9 @@ public class TaskDetailsActivity extends AppCompatActivity {
 
         // Save button listener
         findViewById(R.id.save_task_button).setOnClickListener(v -> saveTaskDetails());
+
+        // Cancel button listener
+        findViewById(R.id.cancel_task_button).setOnClickListener(v -> onBackPressed());
     }
 
     @Override
@@ -73,6 +75,7 @@ public class TaskDetailsActivity extends AppCompatActivity {
             String taskName = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EVENT_NAME));
             String taskDescription = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DESCRIPTION));
             String taskDate = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DATETIME));
+            String taskLocation = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_LOCATION));
             boolean isTaskDone = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EVENT_DONE)) == 1;
             priorityTag = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_PRIORITY_TAG));
 
@@ -80,6 +83,7 @@ public class TaskDetailsActivity extends AppCompatActivity {
             taskNameEditText.setText(taskName);
             taskDescriptionEditText.setText(taskDescription);
             taskDateEditText.setText(taskDate);
+            taskLocationEditText.setText(taskLocation);
             taskDoneCheckBox.setChecked(isTaskDone);
 
             priorityName = dbHelper.getPriorityNameById(priorityTag);
