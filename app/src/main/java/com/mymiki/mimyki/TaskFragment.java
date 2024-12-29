@@ -356,7 +356,9 @@ public class TaskFragment extends Fragment {
                     switch (event.getAction()) {
                         case DragEvent.ACTION_DRAG_STARTED:
                             return true;
-
+                        case DragEvent.ACTION_DRAG_ENTERED:
+                            eventContainer.setBackgroundColor(Color.LTGRAY);
+                            return true;
                         case DragEvent.ACTION_DROP:
                             // Get the task ID from ClipData
                             ClipData.Item item = event.getClipData().getItemAt(0);
