@@ -11,7 +11,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:text="Thêm sự kiện mới"
+            android:text="@string/eventAdd"
             android:textSize="20sp"
             android:layout_marginTop="5dp"
             android:background="@drawable/listview_background"
@@ -26,12 +26,12 @@
                 android:layout_height="wrap_content"
                 android:textSize="18dp"
                 android:layout_marginTop="3dp"
-                android:text="Tên sự kiện: "></TextView>
+                android:text="@string/eventInfoName"></TextView>
             <EditText
                 android:id="@+id/eventNameInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Tên sự kiện"
+                android:hint="@string/eventName"
                 android:height="50dp"/>
         </LinearLayout>
 
@@ -43,12 +43,12 @@
                 android:layout_height="wrap_content"
                 android:textSize="18dp"
                 android:layout_marginTop="3dp"
-                android:text="Mô tả: "></TextView>
+                android:text="@string/eventInfoDes"></TextView>
             <EditText
                 android:id="@+id/descriptionInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Mô tả"
+                android:hint="@string/eventDes"
                 android:height="50dp"/>
         </LinearLayout>
 
@@ -61,12 +61,12 @@
                 android:textSize="18dp"
                 android:height="56dp"
                 android:layout_marginTop="3dp"
-                android:text="Thời gian diễn ra: "></TextView>
+                android:text="@string/eventTime"></TextView>
             <Button
                 android:id="@+id/timeInput"
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:text="Chọn giờ"
+                android:text="@string/timeBtn"
                 android:layout_marginLeft="20dp"
                 android:height="50dp"/>
 
@@ -80,12 +80,12 @@
                 android:layout_height="wrap_content"
                 android:textSize="18dp"
                 android:layout_marginTop="3dp"
-                android:text="Địa điểm: "></TextView>
+                android:text="@string/eventLocation"></TextView>
             <EditText
                 android:id="@+id/locationInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Địa điểm"
+                android:hint="@string/eventLocationV"
                 android:height="50dp"/>
         </LinearLayout>
 
@@ -94,7 +94,7 @@
             android:layout_height="wrap_content"
             android:textSize="18dp"
             android:layout_marginTop="10dp"
-            android:text="Loại sự kiện: "></TextView>
+            android:text="@string/eventInfoCate"></TextView>
         <Spinner
             android:id="@+id/categorySpinner"
             android:layout_width="match_parent"

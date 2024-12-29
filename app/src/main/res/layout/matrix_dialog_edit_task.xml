@@ -8,7 +8,7 @@
         android:id="@+id/edt_task_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Sửa tên công việc"
+        android:hint="@string/eventName"
         android:inputType="text"
         android:padding="12dp" />
 
@@ -16,7 +16,7 @@
         android:id="@+id/edt_task_description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Sửa mô tả công việc"
+        android:hint="@string/eventDes"
         android:inputType="text"
         android:padding="12dp" />
 
@@ -25,7 +25,7 @@
         android:id="@+id/edt_task_location"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Sửa vị trí công việc"
+        android:hint="@string/eventLocationV"
         android:inputType="text"
         android:padding="12dp" />
 
@@ -34,8 +34,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="12dp"
-        android:text="Mở vị trí" />
+        android:text="@string/openLocationBtn" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:layout_marginTop="12dp"
+        android:text="@string/eventInfoCate"/>
 
     <Spinner
         android:id="@+id/spinner_category"
@@ -43,6 +49,13 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:padding="12dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:layout_marginTop="12dp"
+        android:text="@string/eventInfoPri"/>
 
     <Spinner
         android:id="@+id/spinner_priority"
@@ -56,7 +69,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Sửa ngày và giờ"
+        android:text="@string/datetimeEditBtn"
         android:textColor="@color/white" />
 
     <LinearLayout
@@ -70,7 +83,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Lưu" />
+            android:text="@string/saveBtn" />
 
         <Button
             android:id="@+id/btn_delete"
@@ -79,13 +92,13 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:layout_weight="1"
-            android:text="Xóa" />
+            android:text="@string/delBtn" />
 
         <Button
             android:id="@+id/btn_cancel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Hủy" />
+            android:text="@string/cancelBtn" />
     </LinearLayout>
 </LinearLayout>

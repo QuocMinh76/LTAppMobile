@@ -47,13 +47,12 @@
             android:layout_height="wrap_content"
             android:layout_gravity="start|bottom"
             android:layout_margin="16dp"
-            android:tooltipText="Add new category"
             android:elevation="10dp"
             android:visibility="visible"
             android:src="@drawable/ic_add_cates"
             android:background="@drawable/lavender_border"
             android:backgroundTint="@color/white"
-            android:contentDescription="Add new category" />
+            android:contentDescription="@string/cateAdd" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_add_task"
@@ -65,7 +64,7 @@
             android:elevation="10dp"
             android:visibility="visible"
             android:backgroundTint="@color/white"
-            android:contentDescription="Add new task" />
+            android:contentDescription="@string/eventAdd" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
@@ -80,14 +79,44 @@
         android:padding="16dp">
 
         <TextView
+            android:id="@+id/welcome_textview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Side Panel"
             android:textSize="18sp"
+            android:textStyle="bold"
+            android:background="@color/lavender"
             android:textColor="@color/black"
+            android:padding="10dp"
+            android:layout_marginBottom="10dp"
             android:gravity="center" />
 
-        <!-- Add other side panel items here -->
+        <TextView
+            android:id="@+id/total_task_textview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textColor="@color/black"
+            android:layout_marginBottom="10dp"
+            android:gravity="start" />
+
+        <TextView
+            android:id="@+id/finished_task_textview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textColor="@color/black"
+            android:layout_marginBottom="10dp"
+            android:gravity="start" />
+
+        <TextView
+            android:id="@+id/unfinished_task_textview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textColor="@color/black"
+            android:layout_marginBottom="10dp"
+            android:gravity="start" />
+
 
     </LinearLayout>
 
