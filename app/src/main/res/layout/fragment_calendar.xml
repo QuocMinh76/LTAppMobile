@@ -4,11 +4,38 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".CalendarFragment"
-    android:background="@color/white">
-
+    android:background="@drawable/nencal">
+    <TextView
+        android:id="@+id/daily_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Lịch Tháng"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:layout_marginTop="10dp"
+        android:layout_gravity="center_horizontal"
+        android:paddingBottom="8dp" />
+    <Button
+        android:id="@+id/switchToWeekButton"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="1dp"
+        android:layout_margin="5dp"
+        android:layout_marginLeft="50dp"
+        android:background="@drawable/baseline_event_24"/>
+    <Button
+        android:id="@+id/switchToDailyButton"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="10dp"
+        android:layout_margin="5dp"
+        android:background="@drawable/baseline_event_note_24"
+        android:layout_gravity="end"/>
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -30,11 +57,6 @@
                 android:textAlignment="center"
                 android:paddingTop="5dp"
                 android:textColor="@color/black"/>
-<!--            <Button-->
-<!--                android:id="@+id/addEventButton"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="Thêm sự kiện" />-->
 
             <TextView
                 android:id="@+id/noEventsTextView"
@@ -50,7 +72,7 @@
                 android:id="@+id/eventListView"
                 android:layout_width="match_parent"
                 android:layout_marginTop="10dp"
-                android:layout_height="260dp"
+                android:layout_height="250dp"
                 android:layout_weight="1"
                 android:background="@drawable/viewpaper_bkg"
                 android:divider="@android:color/darker_gray"

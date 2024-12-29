@@ -378,6 +378,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         );
     }
 
+
+    public Cursor getCategoriesByUser(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query(
+                TABLE_CATEGORY, // Tên bảng
+                null, // Lấy tất cả các cột
+                COLUMN_CATEGORY_USER_ID + " = ?", // Điều kiện WHERE
+                new String[]{String.valueOf(userId)}, // Giá trị của điều kiện WHERE
+                null, // GROUP BY
+                null, // HAVING
+                null // ORDER BY
+        );
+
     public Cursor getEventsByDate(String date, int userId) {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("SELECT * FROM events WHERE date(datetime) = ? AND user_id = ?", new String[]{date, String.valueOf(userId)});
@@ -686,6 +699,39 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
         return totalFinishedEvents;
     }
+
+    public Cursor getEventsByDateAndUser(String date, int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Truy vấn để lấy sự kiện theo date và user_id
+        String selection = "date = ? AND user_id = ?";
+        String[] selectionArgs = {date, String.valueOf(userId)};
+
+        return db.query(
+                TABLE_EVENTS,  // Tên bảng sự kiện
+                null,  // Lấy tất cả các cột
+                selection,  // Điều kiện lọc
+                selectionArgs,  // Giá trị lọc
+                null,  // Không cần group by
+                null,  // Không cần having
+                null   // Sắp xếp theo mặc định
+        );
+    }
+
+    public Cursor getEventsByHour(String selectedDate, String hour, int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Truy vấn sự kiện dựa trên ngày và giờ
+        String query = "SELECT * FROM events WHERE datetime LIKE ? AND user_id = ?";
+        String[] selectionArgs = new String[] { selectedDate + " " + hour + "%", String.valueOf(userId) };
+
+        return db.rawQuery(query, selectionArgs);
+    }
+
+    public Cursor getEventsByDate(String date, int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM events WHERE date(datetime) = ? AND user_id = ? ORDER BY datetime ASC",
+                new String[]{date, String.valueOf(userId)});
 
     // Method to get the total number of unfinished events for a user
     public int getTotalUnfinishedEvents(int userId) {
