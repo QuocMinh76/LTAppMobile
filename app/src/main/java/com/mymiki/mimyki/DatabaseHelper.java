@@ -108,7 +108,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-//    //xoa database
+    //    //xoa database
     public void clearDatabase() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DROP TABLE IF EXISTS events");
@@ -312,7 +312,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // Read: Get all priorities
     public Cursor getAllPriorities() {
         SQLiteDatabase db = this.getReadableDatabase();
-        return db.query(TABLE_PRIORITY  , null, null, null, null, null, null);
+        return db.query(TABLE_PRIORITY, null, null, null, null, null, null);
     }
 
     // Update: Update a priority
@@ -419,15 +419,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 new String[]{eventName, String.valueOf(user_id)});
     }
 
-    public void updateEventContent(String oldContent, String newContent, int userId) {
+    public void updateEventContent(String oldTask, String newTask, String description, String location, int category, int priority, String dateTime, int userId) {
         ContentValues values = new ContentValues();
-        values.put(COLUMN_EVENT_NAME, newContent);
-        getWritableDatabase().update(TABLE_EVENTS, values, COLUMN_EVENT_NAME + " = ? AND " + COLUMN_USER_ID + " = ?", new String[]{oldContent, String.valueOf(userId)});
+        values.put(COLUMN_EVENT_NAME, newTask);
+        values.put(COLUMN_DESCRIPTION, description);
+        values.put(COLUMN_LOCATION, location);
+        values.put(COLUMN_CATE_ID, category);
+        values.put(COLUMN_PRIORITY_TAG, priority);
+        values.put(COLUMN_DATETIME, dateTime);
+
+        String selection = COLUMN_EVENT_NAME + " = ? AND " + COLUMN_USER_ID + " = ?";
+        String[] selectionArgs = {oldTask, String.valueOf(userId)};
+
+        getWritableDatabase().update(TABLE_EVENTS, values, selection, selectionArgs);
     }
 
     public void deleteEvent(String content, int userId) {
         getWritableDatabase().delete(TABLE_EVENTS, COLUMN_EVENT_NAME + " = ? AND " + COLUMN_USER_ID + " = ?", new String[]{content, String.valueOf(userId)});
     }
+
     public void updateUserNotificationOffset(int userId, int offsetMinutes) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -502,17 +512,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return categoryId; // Return the retrieved category ID
     }
 
-    public static void cancelNotification(Context context, String eventName) {
-        Intent intent = new Intent(context, NotificationReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                context, eventName.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT
-        );
-
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        if (alarmManager != null) {
-            alarmManager.cancel(pendingIntent); // Hủy thông báo
-        }
-    }
 
     public String getEventTimeById(int eventId) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -532,10 +531,65 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return null;
     }
 
+    public String getTaskDescription(String taskName, int userId) {
+        Cursor cursor = getReadableDatabase().query(TABLE_EVENTS, new String[]{COLUMN_DESCRIPTION},
+                COLUMN_EVENT_NAME + " = ? AND " + COLUMN_USER_ID + " = ?",
+                new String[]{taskName, String.valueOf(userId)}, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            String description = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DESCRIPTION));
+            cursor.close();
+            return description;
+        }
+        return null;
+    }
 
+    public String getTaskLocation(String taskName, int userId) {
+        Cursor cursor = getReadableDatabase().query(TABLE_EVENTS, new String[]{COLUMN_LOCATION},
+                COLUMN_EVENT_NAME + " = ? AND " + COLUMN_USER_ID + " = ?",
+                new String[]{taskName, String.valueOf(userId)}, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            String location = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_LOCATION));
+            cursor.close();
+            return location;
+        }
+        return null;
+    }
 
+    public int getTaskCategory(String taskName, int userId) {
+        Cursor cursor = getReadableDatabase().query(TABLE_EVENTS, new String[]{COLUMN_CATE_ID},
+                COLUMN_EVENT_NAME + " = ? AND " + COLUMN_USER_ID + " = ?",
+                new String[]{taskName, String.valueOf(userId)}, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            int category = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_CATE_ID));
+            cursor.close();
+            return category;
+        }
+        return -1;
+    }
 
+    public int getTaskPriority(String taskName, int userId) {
+        Cursor cursor = getReadableDatabase().query(TABLE_EVENTS, new String[]{COLUMN_PRIORITY_TAG},
+                COLUMN_EVENT_NAME + " = ? AND " + COLUMN_USER_ID + " = ?",
+                new String[]{taskName, String.valueOf(userId)}, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            int priority = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_PRIORITY_TAG));
+            cursor.close();
+            return priority;
+        }
+        return -1;
+    }
 
+    public String getTaskDateTime(String taskName, int userId) {
+        Cursor cursor = getReadableDatabase().query(TABLE_EVENTS, new String[]{COLUMN_DATETIME},
+                COLUMN_EVENT_NAME + " = ? AND " + COLUMN_USER_ID + " = ?",
+                new String[]{taskName, String.valueOf(userId)}, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            String dateTime = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DATETIME));
+            cursor.close();
+            return dateTime;
+        }
+        return null;
+    }
 }
 
 

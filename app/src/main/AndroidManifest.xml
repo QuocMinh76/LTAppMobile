@@ -11,7 +11,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Mimyki"
         tools:targetApi="31" >
-<!--        <activity-->
+
+        <meta-data
+            android:name="com.mapbox.maps.token"
+            android:value="sk.eyJ1IjoidHJhbmtpZXQtYXV0aCIsImEiOiJjbTU5ZGlhNWczcTZhMmtyMHA3OTNtdDB6In0._6wQMw5giIAYfSrlm0xV3A"/>
+
+        <!--        <activity-->
 <!--            android:name=".MainActivity"-->
 <!--            android:exported="true" >-->
 <!--            <intent-filter>-->

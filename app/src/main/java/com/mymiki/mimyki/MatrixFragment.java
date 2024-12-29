@@ -9,9 +9,11 @@ import android.app.TimePickerDialog;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -33,6 +35,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 public class MatrixFragment extends Fragment {
@@ -45,12 +48,15 @@ public class MatrixFragment extends Fragment {
     private int user_id = -1;
 
     private DatabaseHelper dbHelper;
+    private DatabaseHelper databaseHelper;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         dbHelper = new DatabaseHelper(getContext());
         user_id = getUserIdFromSharedPreferences(); // Đảm bảo lấy user_id
+        databaseHelper = new DatabaseHelper(getContext());
 
     }
 
@@ -138,13 +144,29 @@ public class MatrixFragment extends Fragment {
         View dialogView = inflater.inflate(R.layout.matrix_dialog_add_task, null);
 
         EditText edtTaskContent = dialogView.findViewById(R.id.edt_task_content);
+        EditText edtTaskDescription = dialogView.findViewById(R.id.edt_task_description);
+        EditText edtTaskLocation = dialogView.findViewById(R.id.edt_task_location);
         Spinner spinnerPriority = dialogView.findViewById(R.id.spinner_priority);
+        Spinner categorySpinner = dialogView.findViewById(R.id.spinner_category);
         Button btnSelectDateTime = dialogView.findViewById(R.id.btn_select_datetime);
 
         ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(
                 getContext(), R.array.matrix_strings, android.R.layout.simple_spinner_item);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerPriority.setAdapter(spinnerAdapter);
+
+        Cursor categoryCursor = dbHelper.getCategoriesByUserId(user_id);
+        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item);
+        List<Integer> categoryIds = new ArrayList<>();
+        while (categoryCursor.moveToNext()) {
+            String categoryName = categoryCursor.getString(categoryCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_NAME));
+            int categoryId = categoryCursor.getInt(categoryCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_ID));
+            categoryAdapter.add(categoryName);
+            categoryIds.add(categoryId);
+        }
+        categoryCursor.close();
+        categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        categorySpinner.setAdapter(categoryAdapter);
 
         final String[] selectedDateTime = {""};
 
@@ -174,9 +196,13 @@ public class MatrixFragment extends Fragment {
                 .setView(dialogView)
                 .setPositiveButton("Thêm", (dialog, which) -> {
                     String taskContent = edtTaskContent.getText().toString().trim();
+                    String taskDescription = edtTaskDescription.getText().toString().trim();
+                    String taskLocation = edtTaskLocation.getText().toString().trim();
+                    int selectedCategoryPosition = categorySpinner.getSelectedItemPosition();
+                    int selectedCategoryId = categoryIds.get(selectedCategoryPosition);
                     int priority = spinnerPriority.getSelectedItemPosition();
                     if (!taskContent.isEmpty() && !selectedDateTime[0].isEmpty()) {
-                        addTaskToQuadrant(taskContent, priority, selectedDateTime[0]);
+                        addTaskToQuadrant(taskContent, taskDescription, taskLocation, selectedCategoryId, priority, selectedDateTime[0]);
                         Toast.makeText(getContext(), "Đã thêm công việc", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(getContext(), "Vui lòng nhập nội dung công việc và chọn ngày giờ", Toast.LENGTH_SHORT).show();
@@ -187,9 +213,9 @@ public class MatrixFragment extends Fragment {
                 .show();
     }
 
-    private void addTaskToQuadrant(String taskContent, int priority, String dateTime) {
+    private void addTaskToQuadrant(String taskContent, String taskDescription, String taskLocation, int category, int priority, String dateTime) {
         // Thêm vào SQLite
-        dbHelper.addEvent(taskContent, "", dateTime, "", false, priority, default_cate_id, user_id); //Để tạm cate_id = 1
+        dbHelper.addEvent(taskContent, taskDescription, dateTime, taskLocation, false, priority, category, user_id); //Để tạm cate_id = 1
         // Lấy thời gian thông báo từ SharedPreferences
         SharedPreferences sharedPref = getActivity().getSharedPreferences("com.example.myapp.PREFERENCE_FILE_KEY", Context.MODE_PRIVATE);
         int offsetMinutes = sharedPref.getInt("notification_offset", 1);
@@ -277,11 +303,44 @@ public class MatrixFragment extends Fragment {
         View dialogView = inflater.inflate(R.layout.matrix_dialog_edit_task, null);
 
         EditText edtTaskContent = dialogView.findViewById(R.id.edt_task_content);
+        EditText edtTaskDescription = dialogView.findViewById(R.id.edt_task_description);
+        EditText edtTaskLocation = dialogView.findViewById(R.id.edt_task_location);
+        Spinner spinnerCategory = dialogView.findViewById(R.id.spinner_category);
+        Spinner spinnerPriority = dialogView.findViewById(R.id.spinner_priority);
+        Button btnSelectDateTime = dialogView.findViewById(R.id.btn_select_datetime);
+        Button btnOpenLocation = dialogView.findViewById(R.id.btn_open_location);
+
         Button btnSave = dialogView.findViewById(R.id.btn_save);
         Button btnDelete = dialogView.findViewById(R.id.btn_delete);
         Button btnCancel = dialogView.findViewById(R.id.btn_cancel);
 
+        // Set current values
         edtTaskContent.setText(currentTask);
+        edtTaskDescription.setText(dbHelper.getTaskDescription(currentTask, user_id));
+        edtTaskLocation.setText(dbHelper.getTaskLocation(currentTask, user_id));
+        btnSelectDateTime.setText(dbHelper.getTaskDateTime(currentTask, user_id));
+
+        // Load categories into spinner
+        Cursor categoryCursor = dbHelper.getCategoriesByUserId(user_id);
+        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item);
+        List<Integer> categoryIds = new ArrayList<>();
+        while (categoryCursor.moveToNext()) {
+            String categoryName = categoryCursor.getString(categoryCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_NAME));
+            int categoryId = categoryCursor.getInt(categoryCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_ID));
+            categoryAdapter.add(categoryName);
+            categoryIds.add(categoryId);
+        }
+        categoryCursor.close();
+        categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerCategory.setAdapter(categoryAdapter);
+        spinnerCategory.setSelection(categoryIds.indexOf(dbHelper.getTaskCategory(currentTask, user_id)));
+
+        // Load priorities into spinner
+        ArrayAdapter<CharSequence> priorityAdapter = ArrayAdapter.createFromResource(
+                getContext(), R.array.matrix_strings, android.R.layout.simple_spinner_item);
+        priorityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerPriority.setAdapter(priorityAdapter);
+        spinnerPriority.setSelection(dbHelper.getTaskPriority(currentTask, user_id));
 
         AlertDialog dialog = new AlertDialog.Builder(getContext())
                 .setView(dialogView)
@@ -290,10 +349,16 @@ public class MatrixFragment extends Fragment {
 
         btnSave.setOnClickListener(v -> {
             String updatedTask = edtTaskContent.getText().toString().trim();
+            String updatedDescription = edtTaskDescription.getText().toString().trim();
+            String updatedLocation = edtTaskLocation.getText().toString().trim();
+            int updatedCategory = categoryIds.get(spinnerCategory.getSelectedItemPosition());
+            int updatedPriority = spinnerPriority.getSelectedItemPosition();
+            String updatedDateTime = btnSelectDateTime.getText().toString().trim();
+
             if (!updatedTask.isEmpty()) {
                 taskList.set(position, updatedTask);
                 adapter.notifyDataSetChanged();
-                dbHelper.updateEventContent(currentTask, updatedTask, user_id); // Update the task in the database
+                dbHelper.updateEventContent(currentTask, updatedTask, updatedDescription, updatedLocation, updatedCategory, updatedPriority, updatedDateTime, user_id);
                 dialog.dismiss();
                 Toast.makeText(getContext(), "Đã cập nhật công việc", Toast.LENGTH_SHORT).show();
             } else {
@@ -305,12 +370,14 @@ public class MatrixFragment extends Fragment {
             NotificationScheduler.cancelNotification(getContext(), currentTask);
             taskList.remove(position);
             adapter.notifyDataSetChanged();
-            dbHelper.deleteEvent(currentTask, user_id); // Delete the task from the database
+            dbHelper.deleteEvent(currentTask, user_id);
             dialog.dismiss();
             Toast.makeText(getContext(), "Đã xóa công việc", Toast.LENGTH_SHORT).show();
         });
 
         btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        btnOpenLocation.setOnClickListener(v -> openLocationInGoogleMaps(currentTask, user_id));
 
         dialog.show();
     }
@@ -350,6 +417,29 @@ public class MatrixFragment extends Fragment {
         quadrant3Adapter.notifyDataSetChanged();
         quadrant4Adapter.notifyDataSetChanged();
 
+    }
+
+    private void openLocationInGoogleMaps(String taskName, int userId) {
+        // Retrieve the location from the database
+        String location = databaseHelper.getTaskLocation(taskName, userId);
+
+        if (location != null && !location.isEmpty()) {
+            // Create an Intent to open Google Maps
+            Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + Uri.encode(location));
+            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+            mapIntent.setPackage("com.google.android.apps.maps");
+
+            // Check if there is an app to handle the Intent
+            if (mapIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+                startActivity(mapIntent);
+            } else {
+                // Handle the case where Google Maps is not installed
+                Toast.makeText(getContext(), "Google Maps is not installed", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            // Handle the case where the location is not valid
+            Toast.makeText(getContext(), "Location is not available", Toast.LENGTH_SHORT).show();
+        }
     }
 
 }

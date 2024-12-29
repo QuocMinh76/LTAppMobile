@@ -8,14 +8,62 @@
         android:id="@+id/edt_task_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Chỉnh sửa nội dung công việc"
-        android:inputType="text" />
+        android:hint="Sửa tên công việc"
+        android:inputType="text"
+        android:padding="12dp" />
+
+    <EditText
+        android:id="@+id/edt_task_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Sửa mô tả công việc"
+        android:inputType="text"
+        android:padding="12dp" />
+
+
+    <EditText
+        android:id="@+id/edt_task_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Sửa vị trí công việc"
+        android:inputType="text"
+        android:padding="12dp" />
+
+    <Button
+        android:id="@+id/btn_open_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:text="Mở vị trí" />
+
+
+    <Spinner
+        android:id="@+id/spinner_category"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:padding="12dp" />
+
+    <Spinner
+        android:id="@+id/spinner_priority"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:padding="12dp" />
+
+    <Button
+        android:id="@+id/btn_select_datetime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Sửa ngày và giờ"
+        android:textColor="@color/white" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="16dp">
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/btn_save"
@@ -28,10 +76,10 @@
             android:id="@+id/btn_delete"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Xóa"
             android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp" />
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:text="Xóa" />
 
         <Button
             android:id="@+id/btn_cancel"

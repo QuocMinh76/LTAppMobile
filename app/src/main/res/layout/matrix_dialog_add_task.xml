@@ -9,8 +9,31 @@
         android:id="@+id/edt_task_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Nhập nội dung công việc"
+        android:hint="Nhập tên công việc"
         android:inputType="text"
+        android:padding="12dp" />
+
+    <EditText
+        android:id="@+id/edt_task_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nhập mô tả công việc"
+        android:inputType="text"
+        android:padding="12dp" />
+
+    <EditText
+        android:id="@+id/edt_task_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nhập vị trí công việc"
+        android:inputType="text"
+        android:padding="12dp" />
+
+    <Spinner
+        android:id="@+id/spinner_category"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:padding="12dp" />
 
     <Spinner
