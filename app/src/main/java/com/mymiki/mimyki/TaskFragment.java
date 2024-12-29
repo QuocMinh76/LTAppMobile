@@ -56,6 +56,7 @@ public class TaskFragment extends Fragment {
     private int user_id = -1;
     private DatabaseHelper dbHelper;
     LinearLayout mainContainer;
+    TextView welcomeMessage, totalEvents, finishedEvents, unfinishedEvents;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,6 +79,7 @@ public class TaskFragment extends Fragment {
         ImageButton btnSidePanel = rootView.findViewById(R.id.btn_side_panel);
 
         btnSidePanel.setOnClickListener(v -> {
+                updateTaskStatus();
                 drawerLayout.openDrawer(GravityCompat.START);
         });
 
@@ -87,7 +89,10 @@ public class TaskFragment extends Fragment {
         FloatingActionButton addCategoryButton = rootView.findViewById(R.id.fab_add_category);
         addCategoryButton.setOnClickListener(v -> showAddCategoryDialog());
 
-
+        welcomeMessage = rootView.findViewById(R.id.welcome_textview);
+        totalEvents = rootView.findViewById(R.id.total_task_textview);
+        finishedEvents = rootView.findViewById(R.id.finished_task_textview);
+        unfinishedEvents = rootView.findViewById(R.id.unfinished_task_textview);
 
         // Set a click listener for the FAB
         fabAddTask.setOnClickListener(v -> showAddTaskDialog(null));
@@ -112,6 +117,18 @@ public class TaskFragment extends Fragment {
             // The task was updated, so refresh the task list
             refreshView();  // Your method to refresh the view
         }
+    }
+
+    private void updateTaskStatus() {
+        String name = dbHelper.getUserNameById(user_id);
+        String total = String.valueOf(dbHelper.getTotalEvents(user_id));
+        String finished = String.valueOf(dbHelper.getTotalFinishedEvents(user_id));
+        String unfinished = String.valueOf(dbHelper.getTotalUnfinishedEvents(user_id));
+
+        welcomeMessage.setText("Chào mừng " + name);
+        totalEvents.setText("Tổng số công việc: " + total);
+        finishedEvents.setText("Công việc đã hoàn thành: " + finished);
+        unfinishedEvents.setText("Công việc chưa hoàn thành: " + unfinished);
     }
 
     private void showAddCategoryDialog() {
@@ -269,7 +286,7 @@ public class TaskFragment extends Fragment {
 
                     if (taskId == null) {
                         // Adding a new task
-                        dbHelper.addEvent(taskName, taskDescription, taskDateTime, taskLocation, false, 1, selectedCategoryId, user_id);
+                        dbHelper.addEvent(taskName, taskDescription, taskDateTime, taskLocation, false, 4, selectedCategoryId, user_id);
 
                         String taskContent = taskNameInput.getText().toString().trim();
                         // Lấy thời gian thông báo từ SharedPreferences
@@ -476,6 +493,7 @@ public class TaskFragment extends Fragment {
 
             categoriesCursor.close();
         }
+        updateTaskStatus();
     }
 
     private void showCategoryDialog(final int categoryId, String currentCategoryName) {
@@ -526,7 +544,7 @@ public class TaskFragment extends Fragment {
                 dialog.dismiss();
             } else {
                 // Show a warning if there are events in the category
-                Toast.makeText(getContext(), "Cannot delete category with events", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Không thể xóa phân loại này!", Toast.LENGTH_SHORT).show();
             }
         });
 

@@ -200,7 +200,7 @@ public class MatrixFragment extends Fragment {
                     String taskLocation = edtTaskLocation.getText().toString().trim();
                     int selectedCategoryPosition = categorySpinner.getSelectedItemPosition();
                     int selectedCategoryId = categoryIds.get(selectedCategoryPosition);
-                    int priority = spinnerPriority.getSelectedItemPosition();
+                    int priority = spinnerPriority.getSelectedItemPosition() + 1;
                     if (!taskContent.isEmpty() && !selectedDateTime[0].isEmpty()) {
                         addTaskToQuadrant(taskContent, taskDescription, taskLocation, selectedCategoryId, priority, selectedDateTime[0]);
                         Toast.makeText(getContext(), "Đã thêm công việc", Toast.LENGTH_SHORT).show();
@@ -224,19 +224,19 @@ public class MatrixFragment extends Fragment {
         NotificationScheduler.scheduleNotification(getContext(), taskContent, dateTime, offsetMinutes);
         // Thêm vào danh sách hiển thị
         switch (priority) {
-            case 0:
+            case 1:
                 quadrant1Tasks.add(taskContent);
                 quadrant1Adapter.notifyDataSetChanged();
                 break;
-            case 1:
+            case 2:
                 quadrant2Tasks.add(taskContent);
                 quadrant2Adapter.notifyDataSetChanged();
                 break;
-            case 2:
+            case 3:
                 quadrant3Tasks.add(taskContent);
                 quadrant3Adapter.notifyDataSetChanged();
                 break;
-            case 3:
+            case 4:
                 quadrant4Tasks.add(taskContent);
                 quadrant4Adapter.notifyDataSetChanged();
                 break;
@@ -290,10 +290,10 @@ public class MatrixFragment extends Fragment {
     }
 
     private int getQuadrantPriority(View listView) {
-        if (listView == listQuadrant1) return 0;
-        if (listView == listQuadrant2) return 1;
-        if (listView == listQuadrant3) return 2;
-        if (listView == listQuadrant4) return 3;
+        if (listView == listQuadrant1) return 1;
+        if (listView == listQuadrant2) return 2;
+        if (listView == listQuadrant3) return 3;
+        if (listView == listQuadrant4) return 4;
         return -1;
     }
 
@@ -395,16 +395,16 @@ public class MatrixFragment extends Fragment {
                 int priorityTag = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_PRIORITY_TAG));
 
                 switch (priorityTag) {
-                    case 0:
+                    case 1:
                         quadrant1Tasks.add(taskContent);
                         break;
-                    case 1:
+                    case 2:
                         quadrant2Tasks.add(taskContent);
                         break;
-                    case 2:
+                    case 3:
                         quadrant3Tasks.add(taskContent);
                         break;
-                    case 3:
+                    case 4:
                         quadrant4Tasks.add(taskContent);
                         break;
                 }
