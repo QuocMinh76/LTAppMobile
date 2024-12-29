@@ -31,7 +31,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="4dp"
-                    android:text="KHẨN CẤP"
+                    android:text="@string/khanCap"
                     android:textAlignment="center" />
 
                 <ListView
@@ -65,7 +65,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="4dp"
-                    android:text="QUAN TRỌNG"
+                    android:text="@string/quanTrong"
                     android:textAlignment="center" />
 
                 <ListView
@@ -99,7 +99,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="4dp"
-                    android:text="BÌNH THƯỜNG"
+                    android:text="@string/binhThuong"
                     android:textAlignment="center"
  />
 
@@ -134,7 +134,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="4dp"
-                    android:text="KHÁC"
+                    android:text="@string/khac"
                     android:textAlignment="center"
 />
 
@@ -168,9 +168,10 @@
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
         android:layout_margin="16dp"
-        android:contentDescription="Add new task"
+        android:contentDescription="@string/eventAdd"
         android:elevation="10dp"
-        android:src="@drawable/ic_add"
+        android:src="@drawable/ic_add_task"
+        android:backgroundTint="@color/white"
         android:tint="@color/white" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

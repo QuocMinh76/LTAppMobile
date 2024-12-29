@@ -194,7 +194,7 @@ public class CalendarFragment extends Fragment {
                         }
                         cursor.close();
 
-                        dbHelper.addEvent(eventName, description, datetime, location, false, 3, cateId, user_id); // Thêm userId thực tế
+                        dbHelper.addEvent(eventName, description, datetime, location, false, 4, cateId, user_id); // Thêm userId thực tế
 
                         String taskContent = eventNameInput.getText().toString().trim();
                         // Lấy thời gian thông báo từ SharedPreferences

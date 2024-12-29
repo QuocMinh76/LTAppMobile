@@ -20,38 +20,44 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <TextView
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:textSize="18dp"
             android:layout_marginTop="3dp"
             android:text="@string/eventInfoName"></TextView>
+
         <EditText
             android:id="@+id/task_name_edit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Tên công việc"/>
+            android:hint="@string/eventName"/>
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <TextView
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:textSize="18dp"
             android:layout_marginTop="3dp"
             android:text="@string/eventInfoDes"></TextView>
+
         <EditText
             android:id="@+id/task_description_edit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Mô tả"/>
+            android:hint="@string/eventDes"/>
+
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <TextView
             android:layout_width="120dp"
             android:layout_height="wrap_content"
@@ -59,33 +65,47 @@
             android:height="56dp"
             android:layout_marginTop="3dp"
             android:text="@string/eventDate"></TextView>
+
         <EditText
             android:id="@+id/task_date_edit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Ngày giờ"/>
+            android:hint="@string/datetimeE"/>
 
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <TextView
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:textSize="18dp"
             android:layout_marginTop="3dp"
             android:text="@string/eventLocation"></TextView>
+
         <EditText
             android:id="@+id/task_location_edit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Địa điểm"/>
+            android:hint="@string/eventLocationV"/>
+
     </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_open_location_d"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"
+        android:padding="12dp"
+        android:text="@string/openLocationBtn" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <TextView
             android:layout_width="120dp"
             android:layout_height="wrap_content"
@@ -93,12 +113,14 @@
             android:height="56dp"
             android:layout_marginTop="3dp"
             android:text="@string/eventPriority"></TextView>
+
         <EditText
             android:id="@+id/priority_edit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="none"
-            android:hint="Mức độ ưu tiên"/>
+            android:enabled="false"
+            android:hint="@string/eventPriorityE"/>
 
     </LinearLayout>
 
@@ -106,7 +128,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="18dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="7dp"
         android:layout_marginBottom="10dp"
         android:text="@string/eventInfoCate"></TextView>
 

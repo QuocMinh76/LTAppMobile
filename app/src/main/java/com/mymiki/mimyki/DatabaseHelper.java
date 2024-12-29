@@ -85,10 +85,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String insertMediumPriority = "INSERT INTO " + TABLE_PRIORITY + " (" + COLUMN_PRIORITY_NAME + ") VALUES ('Quan trọng')";
         String insertHighPriority = "INSERT INTO " + TABLE_PRIORITY + " (" + COLUMN_PRIORITY_NAME + ") VALUES ('Khẩn cấp')";
 
-        db.execSQL(insertOtherPriority);
-        db.execSQL(insertLowPriority);
-        db.execSQL(insertMediumPriority);
         db.execSQL(insertHighPriority);
+        db.execSQL(insertMediumPriority);
+        db.execSQL(insertLowPriority);
+        db.execSQL(insertOtherPriority);
 
         // Tạo bảng events
         String CREATE_EVENTS_TABLE = "CREATE TABLE " + TABLE_EVENTS + " ("
@@ -651,6 +651,83 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return dateTime;
         }
         return null;
+    }
+
+    // Method to get the total number of events for a user
+    public int getTotalEvents(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT COUNT(*) FROM " + TABLE_EVENTS + " WHERE " + COLUMN_USER_ID + " = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
+        int totalEvents = 0;
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                totalEvents = cursor.getInt(0);
+            }
+            cursor.close();
+        }
+        db.close();
+        return totalEvents;
+    }
+
+    // Method to get the total number of finished events for a user
+    public int getTotalFinishedEvents(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT COUNT(*) FROM " + TABLE_EVENTS + " WHERE " + COLUMN_USER_ID + " = ? AND " + COLUMN_EVENT_DONE + " = 1";
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
+        int totalFinishedEvents = 0;
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                totalFinishedEvents = cursor.getInt(0);
+            }
+            cursor.close();
+        }
+        db.close();
+        return totalFinishedEvents;
+    }
+
+    // Method to get the total number of unfinished events for a user
+    public int getTotalUnfinishedEvents(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT COUNT(*) FROM " + TABLE_EVENTS + " WHERE " + COLUMN_USER_ID + " = ? AND " + COLUMN_EVENT_DONE + " = 0";
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
+        int totalUnfinishedEvents = 0;
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                totalUnfinishedEvents = cursor.getInt(0);
+            }
+            cursor.close();
+        }
+        db.close();
+        return totalUnfinishedEvents;
+    }
+
+    public String getUserNameById(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Define the query to get the user's name by ID
+        String query = "SELECT " + COLUMN_USER_NAME + " FROM " + TABLE_USER +
+                " WHERE " + COLUMN_USER_ID_TABLE + " = ?";
+
+        // Prepare the cursor to execute the query
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
+
+        String name = null;
+
+        if (cursor != null && cursor.moveToFirst()) {
+            // Get the user's name from the cursor
+            name = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_NAME));
+        }
+
+        // Close the cursor and database
+        if (cursor != null) {
+            cursor.close();
+        }
+        db.close();
+
+        return name;
     }
 }
 

@@ -23,7 +23,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
-                android:text="Danh sách sự kiện"
+                android:text="@string/eventList"
                 android:textSize="20sp"
                 android:layout_marginTop="5dp"
                 android:background="@drawable/listview_background"
@@ -40,7 +40,7 @@
                 android:id="@+id/noEventsTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Không có sự kiện cho ngày này"
+                android:text="@string/noEvents"
                 android:visibility="gone"
                 android:textAlignment="center"
                 android:textColor="@android:color/black"
@@ -65,7 +65,8 @@
         android:layout_gravity="end|bottom"
         android:layout_margin="16dp"
         android:elevation="10dp"
-        android:src="@drawable/ic_add"
+        android:src="@drawable/ic_add_task"
+        android:backgroundTint="@color/white"
         android:visibility="visible" />
 </FrameLayout>
 
