@@ -200,9 +200,9 @@ public class MatrixFragment extends Fragment {
                     String taskLocation = edtTaskLocation.getText().toString().trim();
                     int selectedCategoryPosition = categorySpinner.getSelectedItemPosition();
                     int selectedCategoryId = categoryIds.get(selectedCategoryPosition);
-                    int priority = spinnerPriority.getSelectedItemPosition() + 1;
+                    int priority = spinnerPriority.getSelectedItemPosition();
                     if (!taskContent.isEmpty() && !selectedDateTime[0].isEmpty()) {
-                        addTaskToQuadrant(taskContent, taskDescription, taskLocation, selectedCategoryId, priority, selectedDateTime[0]);
+                        addTaskToQuadrant(taskContent, taskDescription, taskLocation, selectedCategoryId, priority + 1, selectedDateTime[0]);
                         Toast.makeText(getContext(), "Đã thêm công việc", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(getContext(), "Vui lòng nhập nội dung công việc và chọn ngày giờ", Toast.LENGTH_SHORT).show();
@@ -340,7 +340,8 @@ public class MatrixFragment extends Fragment {
                 getContext(), R.array.matrix_strings, android.R.layout.simple_spinner_item);
         priorityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerPriority.setAdapter(priorityAdapter);
-        spinnerPriority.setSelection(dbHelper.getTaskPriority(currentTask, user_id));
+        int taskCurrentPriority = dbHelper.getTaskPriority(currentTask, user_id);
+        spinnerPriority.setSelection(taskCurrentPriority - 1);
 
         AlertDialog dialog = new AlertDialog.Builder(getContext())
                 .setView(dialogView)
@@ -358,7 +359,7 @@ public class MatrixFragment extends Fragment {
             if (!updatedTask.isEmpty()) {
                 taskList.set(position, updatedTask);
                 adapter.notifyDataSetChanged();
-                dbHelper.updateEventContent(currentTask, updatedTask, updatedDescription, updatedLocation, updatedCategory, updatedPriority, updatedDateTime, user_id);
+                dbHelper.updateEventContent(currentTask, updatedTask, updatedDescription, updatedLocation, updatedCategory, updatedPriority + 1, updatedDateTime, user_id);
                 dialog.dismiss();
                 Toast.makeText(getContext(), "Đã cập nhật công việc", Toast.LENGTH_SHORT).show();
             } else {
