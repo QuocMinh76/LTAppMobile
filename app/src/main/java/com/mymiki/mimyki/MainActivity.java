@@ -50,6 +50,10 @@ public class MainActivity extends AppCompatActivity {
                         selectedFragment = new MatrixFragment();
                     } else if (item.getItemId() == R.id.nav_setting) {
                         selectedFragment = new AccountFragment();
+                    } else if (item.getItemId() == R.id.switchToWeekButton) {
+                        selectedFragment = new WeekFragment();
+                    } else if (item.getItemId() == R.id.switchToDailyButton) {
+                        selectedFragment = new DailyFragment();
                     }
                     getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
                     return true;

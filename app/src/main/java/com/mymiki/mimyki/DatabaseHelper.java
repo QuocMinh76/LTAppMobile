@@ -103,7 +103,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-//    //xoa database
+    //    //xoa database
     public void clearDatabase() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DROP TABLE IF EXISTS events");
@@ -407,11 +407,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         );
     }
 
-    public Cursor getEventsByDate(String date, int userId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        return db.rawQuery("SELECT * FROM events WHERE date(datetime) = ? AND user_id = ?", new String[]{date, String.valueOf(userId)});
-    }
-
     public Cursor getAllCategories(int userId) {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("SELECT * FROM category WHERE user_id = ?", new String[]{String.valueOf(userId)});
@@ -483,6 +478,39 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return -1; // Category not found
     }
 
+    public Cursor getEventsByDateAndUser(String date, int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Truy vấn để lấy sự kiện theo date và user_id
+        String selection = "date = ? AND user_id = ?";
+        String[] selectionArgs = {date, String.valueOf(userId)};
+
+        return db.query(
+                TABLE_EVENTS,  // Tên bảng sự kiện
+                null,  // Lấy tất cả các cột
+                selection,  // Điều kiện lọc
+                selectionArgs,  // Giá trị lọc
+                null,  // Không cần group by
+                null,  // Không cần having
+                null   // Sắp xếp theo mặc định
+        );
+    }
+
+    public Cursor getEventsByHour(String selectedDate, String hour, int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Truy vấn sự kiện dựa trên ngày và giờ
+        String query = "SELECT * FROM events WHERE datetime LIKE ? AND user_id = ?";
+        String[] selectionArgs = new String[] { selectedDate + " " + hour + "%", String.valueOf(userId) };
+
+        return db.rawQuery(query, selectionArgs);
+    }
+
+    public Cursor getEventsByDate(String date, int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM events WHERE date(datetime) = ? AND user_id = ? ORDER BY datetime ASC",
+                new String[]{date, String.valueOf(userId)});
+    }
 }
 
 

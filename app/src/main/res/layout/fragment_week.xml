@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".WeekFragment"
+    android:background="@color/white">
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/daily_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Lịch Tuần"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginTop="10dp"
+                android:layout_gravity="center_horizontal"
+                android:paddingBottom="8dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/week_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tuần: "
+                    android:textSize="18sp"
+                    android:layout_gravity="center_horizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginTop="10dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="60dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp">
+                <Button
+                    android:id="@+id/btn_previous_week"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tuần trước"
+                    app:layout_constraintEnd_toStartOf="@id/week_title"
+                    app:layout_constraintTop_toBottomOf="@id/week_title"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="8dp"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="-"
+                    android:layout_marginTop="20dp"
+                    android:textSize="30dp"></TextView>
+                <Button
+                    android:id="@+id/btn_next_week"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tuần sau"
+                    app:layout_constraintStart_toEndOf="@id/week_title"
+                    app:layout_constraintTop_toBottomOf="@id/week_title"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginStart="8dp"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent">
+                <Button
+                    android:id="@+id/btn_select_date"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginLeft="195dp"
+                    android:background="@drawable/baseline_edit_calendar_24"
+                    android:layout_marginTop="1dp" />
+            </LinearLayout>
+            <HorizontalScrollView
+                android:id="@+id/horizontal_scroll_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/btn_select_date"
+                android:layout_marginTop="25dp">
+
+                <LinearLayout
+                    android:id="@+id/week_days_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"/>
+            </HorizontalScrollView>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text="Danh sách sự kiện"
+                android:textSize="20sp"
+                android:layout_marginTop="50dp"
+                android:background="@drawable/listview_background"
+                android:textAlignment="center"
+                android:paddingTop="5dp"
+                android:textColor="@color/black"/>
+
+            <TextView
+                android:id="@+id/noEventsTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Không có sự kiện cho ngày này"
+                android:visibility="gone"
+                android:textAlignment="center"
+                android:textColor="@android:color/black"
+                android:padding="16dp" />
+
+            <ListView
+                android:id="@+id/eventListView"
+                android:layout_width="380dp"
+                android:layout_marginTop="20dp"
+                android:layout_height="250dp"
+                android:layout_weight="100"
+                android:layout_marginLeft="15dp"
+                android:background="@drawable/viewpaper_bkg"
+                android:divider="@android:color/darker_gray"
+                android:dividerHeight="2dp" />
+        </LinearLayout>
+    </ScrollView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/addEventButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="16dp"
+        android:elevation="10dp"
+        android:src="@drawable/ic_add"
+        android:visibility="visible" />
+</FrameLayout>
