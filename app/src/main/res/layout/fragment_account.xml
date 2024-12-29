@@ -1,0 +1,123 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:text="@string/accountInfo"
+            android:textSize="20sp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/listview_background"
+            android:textAlignment="center"
+            android:paddingTop="5dp"
+            android:textColor="@color/black"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="130dp"
+                android:layout_height="wrap_content"
+                android:textSize="18dp"
+                android:layout_marginTop="3dp"
+                android:text="@string/user_name_acc"></TextView>
+            <EditText
+                android:id="@+id/etName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/fullname" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="130dp"
+                android:layout_height="wrap_content"
+                android:textSize="18dp"
+                android:layout_marginTop="3dp"
+                android:text="@string/username_acc"></TextView>
+            <EditText
+                android:id="@+id/etUsername"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:hint="@string/username" />
+
+        </LinearLayout>
+
+        <Switch
+            android:id="@+id/swPremium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/premium"
+            android:enabled="false"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/tvPremiumStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/dialogPremium"
+            android:textColor="@android:color/holo_blue_dark"
+            android:visibility="gone"
+            android:gravity="center"
+            android:layout_marginTop="10dp"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/btnBuyPremium"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/buyPreBtn"
+            android:layout_marginTop="10dp"
+            android:textStyle="bold"
+            android:backgroundTint="@color/pink"/>
+
+        <Button
+            android:id="@+id/btnUpdate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/updInfoBtn"
+            android:layout_marginTop="10dp"
+            android:textStyle="bold"
+            android:backgroundTint="@color/lavender"/>
+
+        <Button
+            android:id="@+id/btnEditNotificationTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/setTimeBtn"
+            android:layout_marginTop="10dp"
+            android:textStyle="bold"
+            android:backgroundTint="@color/lavender"/>
+
+
+        <Button
+            android:id="@+id/btnDelete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/delAccBtn"
+            android:textColor="@color/red"
+            android:layout_marginTop="10dp"
+            android:textStyle="bold"
+            android:backgroundTint="@color/lavender"/>
+
+        <Button
+            android:id="@+id/btnLogout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/logoutBtn"
+            android:layout_marginTop="10dp"
+            android:textStyle="bold"
+            android:backgroundTint="@color/lavender"/>
+    </LinearLayout>
+</ScrollView>
