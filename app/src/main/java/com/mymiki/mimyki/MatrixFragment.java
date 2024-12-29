@@ -13,10 +13,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import android.view.DragEvent;
@@ -32,7 +36,17 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
+import android.location.Location;
+import androidx.core.app.ActivityCompat;
+import android.content.pm.PackageManager;
+import android.Manifest;
+import android.location.Address;
+import android.location.Geocoder;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -50,14 +64,65 @@ public class MatrixFragment extends Fragment {
     private DatabaseHelper dbHelper;
     private DatabaseHelper databaseHelper;
 
+    private FusedLocationProviderClient fusedLocationClient;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
         dbHelper = new DatabaseHelper(getContext());
         user_id = getUserIdFromSharedPreferences(); // Đảm bảo lấy user_id
         databaseHelper = new DatabaseHelper(getContext());
 
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, proceed with getting the location
+                getCurrentLocation(cityName -> {
+                    // Handle the location result
+                });
+            } else {
+                // Permission denied, show a message to the user
+                Toast.makeText(getContext(), "Location permission denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void requestLocationPermission() {
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+        }
+    }
+
+    private void getCurrentLocation(OnSuccessListener<String> listener) {
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
+                if (location != null) {
+                    Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
+                    try {
+                        List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                        if (addresses != null && !addresses.isEmpty()) {
+                            String cityName = addresses.get(0).getLocality();
+                            listener.onSuccess(cityName);
+                        } else {
+                            listener.onSuccess(null);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        listener.onSuccess(null);
+                    }
+                } else {
+                    listener.onSuccess(null);
+                }
+            });
+        } else {
+            requestLocationPermission();
+        }
     }
 
     @Override
@@ -150,6 +215,12 @@ public class MatrixFragment extends Fragment {
         Spinner categorySpinner = dialogView.findViewById(R.id.spinner_category);
         Button btnSelectDateTime = dialogView.findViewById(R.id.btn_select_datetime);
 
+        getCurrentLocation(cityName -> {
+            if (cityName != null) {
+                edtTaskLocation.setText(cityName);
+            }
+        });
+
         ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(
                 getContext(), R.array.matrix_strings, android.R.layout.simple_spinner_item);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -212,7 +283,6 @@ public class MatrixFragment extends Fragment {
                 .create()
                 .show();
     }
-
     private void addTaskToQuadrant(String taskContent, String taskDescription, String taskLocation, int category, int priority, String dateTime) {
         // Thêm vào SQLite
         dbHelper.addEvent(taskContent, taskDescription, dateTime, taskLocation, false, priority, category, user_id); //Để tạm cate_id = 1

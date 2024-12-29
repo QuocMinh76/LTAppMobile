@@ -73,7 +73,7 @@ public class RegisterActivity extends AppCompatActivity {
                             "2025-01-01 00:00:00",
                             "Nhà của bạn",
                             false,
-                            3,
+                            4,
                             categoryId,
                             (int) userId
                     );
