@@ -502,6 +502,57 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return categoryId; // Return the retrieved category ID
     }
 
+    public int getPriorityIdByEventId(int eventId) {
+        int priorityId = -1; // Default value to indicate no priority found
+        SQLiteDatabase db = this.getReadableDatabase(); // Open the database in read mode
+        Cursor cursor = null;
+
+        try {
+            // Query to retrieve the priority ID of the event
+            cursor = db.query(
+                    TABLE_EVENTS,                     // Table name
+                    new String[]{COLUMN_PRIORITY_TAG}, // Column to retrieve
+                    COLUMN_EVENT_ID + " = ?",         // WHERE clause
+                    new String[]{String.valueOf(eventId)}, // WHERE clause argument
+                    null,                             // GROUP BY
+                    null,                             // HAVING
+                    null                              // ORDER BY
+            );
+
+            if (cursor != null && cursor.moveToFirst()) {
+                // Retrieve the priority ID from the first row of the result
+                priorityId = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_PRIORITY_TAG));
+            }
+        } catch (Exception e) {
+            e.printStackTrace(); // Log the exception
+        } finally {
+            if (cursor != null) {
+                cursor.close(); // Close the cursor to avoid memory leaks
+            }
+            db.close(); // Close the database
+        }
+
+        return priorityId; // Return the retrieved priority ID
+    }
+
+    public void updateTaskCategory(int taskId, int newCategoryId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_CATE_ID, newCategoryId);
+        db.update(TABLE_EVENTS, values, COLUMN_EVENT_ID + " = ?", new String[]{String.valueOf(taskId)});
+        db.close();
+    }
+
+    public boolean hasEventsInCategory(int categoryId) {
+        // Query to check if there are events in the category
+        Cursor cursor = getEventsByCategoryId(categoryId);
+        boolean hasEvents = cursor != null && cursor.getCount() > 0;
+        if (cursor != null) {
+            cursor.close();
+        }
+        return hasEvents;
+    }
+
     public static void cancelNotification(Context context, String eventName) {
         Intent intent = new Intent(context, NotificationReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(

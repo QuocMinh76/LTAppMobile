@@ -19,10 +19,14 @@
     <string name="eventInfoName">Tên sự kiện: </string>
     <string name="eventInfoDes">Mô tả: </string>
     <string name="eventDate">Ngày và Giờ: </string>
+    <string name="eventLocation">Địa điểm: </string>
     <string name="eventPriority">Độ ưu tiên: </string>
     <string name="eventInfoCate">Loại sự kiện: </string>
 
     <string name="saveBtn">Lưu</string>
+    <string name="delBtn">Xóa</string>
+    <string name="cancelBtn">Hủy</string>
+
     <string name="doneCheckbox">Hoàn thành</string>
 
     <!-- TODO: Remove or change this placeholder text -->

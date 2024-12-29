@@ -293,7 +293,7 @@ public class MatrixFragment extends Fragment {
             if (!updatedTask.isEmpty()) {
                 taskList.set(position, updatedTask);
                 adapter.notifyDataSetChanged();
-                dbHelper.updateEventContent(currentTask, updatedTask, user_id); // Update the task in the database
+                dbHelper.updateEventContent(currentTask, updatedTask, user_id);
                 dialog.dismiss();
                 Toast.makeText(getContext(), "Đã cập nhật công việc", Toast.LENGTH_SHORT).show();
             } else {

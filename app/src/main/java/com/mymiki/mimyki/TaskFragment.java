@@ -11,16 +11,22 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 
+import android.util.Log;
+import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +34,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -66,7 +73,13 @@ public class TaskFragment extends Fragment {
 
         // FloatingActionButton for adding tasks
         FloatingActionButton fabAddTask = rootView.findViewById(R.id.fab_add_task);
-        //Button addTask = findViewById(R.id.btn_add);
+
+        DrawerLayout drawerLayout = rootView.findViewById(R.id.drawer_layout);
+        ImageButton btnSidePanel = rootView.findViewById(R.id.btn_side_panel);
+
+        btnSidePanel.setOnClickListener(v -> {
+                drawerLayout.openDrawer(GravityCompat.START);
+        });
 
         // Main container in activity_main.xml
         mainContainer = rootView.findViewById(R.id.main_container);
@@ -299,6 +312,7 @@ public class TaskFragment extends Fragment {
             do {
                 // Get category name from the cursor
                 String categoryName = categoriesCursor.getString(categoriesCursor.getColumnIndexOrThrow(COLUMN_CATEGORY_NAME));
+                int categoryId = categoriesCursor.getInt(categoriesCursor.getColumnIndexOrThrow(COLUMN_CATEGORY_ID));
 
                 // Create a task group layout for each category
                 View categoryView = getLayoutInflater().inflate(R.layout.list_item_task_group, mainContainer, false);
@@ -308,11 +322,53 @@ public class TaskFragment extends Fragment {
                 categoryTitle.setText(categoryName);
 
                 // Find the container to add events for this category
-                LinearLayout eventContainer = categoryView.findViewById(R.id.task_container);
+                LinearLayout eventContainer = categoryView.findViewById(R.id.category_layout);
 
-                // Fetch events for this category using the category ID
-                int categoryId = categoriesCursor.getInt(categoriesCursor.getColumnIndexOrThrow(COLUMN_CATEGORY_ID));
+                eventContainer.setTag(categoryId); // Assign the category ID to the container
                 Cursor eventsCursor = dbHelper.getEventsByCategoryId(categoryId);
+
+                // Inside the loop where you're adding categories
+                categoryView.setOnLongClickListener(v -> {
+                    String currentCategoryName = ((TextView) v.findViewById(R.id.task_group_title)).getText().toString();
+                    showCategoryDialog(categoryId, currentCategoryName);
+                    return true;
+                });
+
+                // Set drop listener for category
+                eventContainer.setOnDragListener((v, event) -> {
+                    switch (event.getAction()) {
+                        case DragEvent.ACTION_DRAG_STARTED:
+                            return true;
+
+                        case DragEvent.ACTION_DROP:
+                            // Get the task ID from ClipData
+                            ClipData.Item item = event.getClipData().getItemAt(0);
+                            int draggedTaskId = Integer.parseInt(item.getText().toString());
+
+                            // No need to remove the dragged view, as refreshView will reload the task's category
+                            // We just need to update the task's category in the database
+                            int newCategoryId = (int) v.getTag();  // Ensure the category's ID is stored in the view's tag
+
+                            // Check if the event container (category) is actually ready to accept the task
+                            if (v instanceof LinearLayout && ((LinearLayout) v).getChildCount() == 0) {
+                                // This category is empty, so we can safely drop the task here
+                                dbHelper.updateTaskCategory(draggedTaskId, newCategoryId);
+                                refreshView();
+                                return true;
+                            } else {
+                                // Handle the case where the category isn't empty (optional)
+                                dbHelper.updateTaskCategory(draggedTaskId, newCategoryId);
+                                refreshView();
+                                return true;
+                            }
+
+                        case DragEvent.ACTION_DRAG_ENDED:
+                            return true;
+
+                        default:
+                            return false;
+                    }
+                });
 
                 if (eventsCursor != null && eventsCursor.moveToFirst()) {
                     do {
@@ -338,6 +394,33 @@ public class TaskFragment extends Fragment {
                         Button editButton = eventView.findViewById(R.id.task_edit);
                         Button deleteButton = eventView.findViewById(R.id.task_delete);
 
+                        swipeLayout.addSwipeListener(new SwipeLayout.SwipeListener() {
+                            @Override
+                            public void onOpen(SwipeLayout layout) {
+                                // Swipe layout opened, disable click actions
+                                swipeLayout.setTag(true);  // Mark as open
+                            }
+
+                            @Override
+                            public void onClose(SwipeLayout layout) {
+                                // Swipe layout closed, enable click actions
+                                swipeLayout.setTag(false);  // Mark as closed
+                            }
+
+                            @Override
+                            public void onStartOpen(SwipeLayout layout) {}
+
+                            @Override
+                            public void onStartClose(SwipeLayout layout) {}
+
+                            @Override
+                            public void onUpdate(SwipeLayout layout, int leftOffset, int topOffset) {}
+
+                            @Override
+                            public void onHandRelease(SwipeLayout layout, float xvel, float yvel) {}
+                        });
+
+
                         editButton.setOnClickListener(v -> showAddTaskDialog(eventId));
 
                         deleteButton.setOnClickListener(v -> {
@@ -347,11 +430,22 @@ public class TaskFragment extends Fragment {
 
                         eventView.setOnClickListener(v -> {
                             // Open TaskDetailsActivity with the task ID
-                            Intent intent = new Intent(getContext(), TaskDetailsActivity.class);
-                            intent.putExtra("TASK_ID", eventId);
-                            intent.putExtra("USER_ID", user_id);
-//                            startActivity(intent);
-                            startActivityForResult(intent, REQUEST_CODE_EDIT_TASK);
+                            if (swipeLayout.getTag() == null || !(Boolean) swipeLayout.getTag()) {
+                                Intent intent = new Intent(getContext(), TaskDetailsActivity.class);
+                                intent.putExtra("TASK_ID", eventId);
+                                intent.putExtra("USER_ID", user_id);
+                                startActivityForResult(intent, REQUEST_CODE_EDIT_TASK);
+                            }
+                        });
+
+                        eventView.setOnLongClickListener(v -> {
+                            if (swipeLayout.getTag() == null || !(Boolean) swipeLayout.getTag()) {
+                                ClipData clipData = ClipData.newPlainText("taskId", String.valueOf(eventId));
+                                View.DragShadowBuilder dragShadow = new View.DragShadowBuilder(v);
+                                eventView.startDrag(clipData, dragShadow, null, 0); // You can pass flags as 0
+                                Log.d("DragDrop", "Drag started for Task ID: " + eventId);
+                            }
+                            return true;
                         });
 
                         // Add the event view to the event container
@@ -384,6 +478,64 @@ public class TaskFragment extends Fragment {
         }
     }
 
+    private void showCategoryDialog(final int categoryId, String currentCategoryName) {
+        // Inflate the dialog layout
+        View dialogView = getLayoutInflater().inflate(R.layout.category_edit_layout, null);
+        final EditText categoryNameInput = dialogView.findViewById(R.id.category_name_input);
+        final Button editButton = dialogView.findViewById(R.id.btn_edit);
+        final Button deleteButton = dialogView.findViewById(R.id.btn_delete);
+        Button cancelButton = dialogView.findViewById(R.id.btn_cancel);
+
+        // Set the current category name in the input field
+        categoryNameInput.setText(currentCategoryName);
+
+        // Create the dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setView(dialogView);
+        final AlertDialog dialog = builder.create();
+
+        // Check if there are any events in the category
+        boolean hasEvents = dbHelper.hasEventsInCategory(categoryId);
+
+        // Disable the Delete button if there are events in the category
+        if (hasEvents) {
+            deleteButton.setEnabled(false);
+            deleteButton.setTextColor(Color.GRAY); // Optionally disable with color
+        } else {
+            deleteButton.setEnabled(true);
+        }
+
+        // Edit button click listener
+        editButton.setOnClickListener(v -> {
+            String newCategoryName = categoryNameInput.getText().toString().trim();
+            if (!newCategoryName.isEmpty()) {
+                dbHelper.updateCategory(categoryId, newCategoryName);
+                refreshView(); // Refresh the category list after renaming
+                dialog.dismiss();
+            } else {
+                // Show a warning or error message if the name is empty
+                Toast.makeText(getContext(), "Please enter a valid name", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Delete button click listener
+        deleteButton.setOnClickListener(v -> {
+            if (!hasEvents) {
+                dbHelper.deleteCategory(categoryId);
+                refreshView(); // Refresh the category list after deletion
+                dialog.dismiss();
+            } else {
+                // Show a warning if there are events in the category
+                Toast.makeText(getContext(), "Cannot delete category with events", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Cancel button click listener
+        cancelButton.setOnClickListener(v -> dialog.dismiss());
+
+        // Show the dialog
+        dialog.show();
+    }
 
     private void displayCategoriesAndEvents(LinearLayout container) {
         Cursor categoryCursor = dbHelper.getCategoriesByUserId(user_id);
