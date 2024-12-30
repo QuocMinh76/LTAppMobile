@@ -148,8 +148,11 @@ public class CalendarFragment extends Fragment {
 
         Cursor categoryCursor = dbHelper.getAllCategories(user_id);
         ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item);
+        List<Integer> categoryIds = new ArrayList<>();
         while (categoryCursor.moveToNext()) {
+            int categoryId = categoryCursor.getInt(categoryCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_ID));
             categoryAdapter.add(categoryCursor.getString(categoryCursor.getColumnIndex(DatabaseHelper.COLUMN_CATEGORY_NAME)));
+            categoryIds.add(categoryId);
         }
         categoryCursor.close();
         categorySpinner.setAdapter(categoryAdapter);
@@ -208,6 +211,8 @@ public class CalendarFragment extends Fragment {
                     String time = timeButton.getText().toString();
                     String location = locationInput.getText().toString();
                     String categoryName = categorySpinner.getSelectedItem().toString();
+                    int selectedCategoryPosition = categorySpinner.getSelectedItemPosition();
+                    int selectedCategoryId = categoryIds.get(selectedCategoryPosition);
 
                     String datetime = selectedDate + " " + time;
 
@@ -232,7 +237,9 @@ public class CalendarFragment extends Fragment {
                         // Lên lịch thông báo
                         NotificationScheduler.scheduleNotification(getContext(), taskContent, datetime, offsetMinutes);
                     } else {
-                        dbHelper.updateEvent(eventId, eventName, description, datetime, location, false, 1, 3);
+                        int taskCurrentPriority = dbHelper.getTaskPriority(eventName, user_id);
+
+                        dbHelper.updateEvent(eventId, eventName, description, datetime, location, false, selectedCategoryId, taskCurrentPriority);
                     }
                     loadEventsForSelectedDate();
                 })

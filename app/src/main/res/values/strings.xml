@@ -1,25 +1,16 @@
 <resources>
-    <string name="app_name">Mimyki</string>
-
-    <string name="back"><![CDATA[<-]]></string>
-    <string name="next"><![CDATA[->]]></string>
-    <string name="sun">SUN</string>
-    <string name="mon">MON</string>
-    <string name="tue">TUE</string>
-    <string name="wed">WED</string>
-    <string name="thur">THUR</string>
-    <string name="fri">FRI</string>
-    <string name="sat">SAT</string>
-    <string name="eventname">Nhap ten su kien</string>
+    <string name="app_name">Mimyki TodoApp</string>
 
     <string name="eventAdd">Thêm sự kiện mới</string>
     <string name="cateAdd">Thêm phân loại mới</string>
     <string name="bigLogin">ĐĂNG NHẬP</string>
     <string name="bigRegister">ĐĂNG KÝ</string>
     <string name="eventList">Danh sách sự kiện</string>
+    <string name="pay">Thanh toán</string>
 
 
     <string name="eventInfo">Thông tin sự kiện</string>
+    <string name="accountInfo">Thông tin tài khoản</string>
     <string name="eventInfoName">Tên sự kiện: </string>
     <string name="eventInfoDes">Mô tả: </string>
     <string name="eventDate">Ngày và Giờ: </string>
@@ -28,6 +19,9 @@
     <string name="eventInfoCate">Loại sự kiện: </string>
     <string name="eventInfoPri">Độ ưu tiên: </string>
     <string name="eventTime">Thời gian diễn ra: </string>
+    <string name="user_name_acc">Tên người dùng: </string>
+    <string name="username_acc">Tên đăng nhập: </string>
+    <string name="week">Tuần: </string>
 
     <string name="saveBtn">Lưu</string>
     <string name="delBtn">Xóa</string>
@@ -44,6 +38,9 @@
     <string name="delAccBtn">Xóa tài khoản</string>
     <string name="logoutBtn">Đăng xuất</string>
     <string name="openLocationBtn">Mở vị trí</string>
+    <string name="nextBtn">Tuần sau</string>
+    <string name="prevBtn">Tuần trước</string>
+    <string name="buyBtn">Xác nhận mua</string>
 
     <string name="doneCheckbox">Hoàn thành</string>
     <string name="passW">Mật khẩu</string>
@@ -58,6 +55,12 @@
     <string name="premium">Premium</string>
     <string name="datetimeE">Thời gian</string>
     <string name="eventPriorityE">Mức độ ưu tiên</string>
+    <string name="dayCalendar">Lịch Ngày</string>
+    <string name="weekCalendar">Lịch Tuần</string>
+    <string name="monthCalendar">Lịch Tháng</string>
+    <string name="cardNum">Số thẻ</string>
+    <string name="cardDate">Ngày hết hạn (MM/YY)</string>
+    <string name="cardCVC">CVC</string>
 
     <string name="khanCap">KHẨN CẤP</string>
     <string name="quanTrong">QUAN TRỌNG</string>
@@ -65,7 +68,7 @@
     <string name="khac">KHÁC</string>
 
     <string name="dialogPremium">Bạn là người dùng cao cấp</string>
-    <string name="preOnlyMsg">Chỉ dành cho người dùng Cao cấp</string>
+    <string name="preOnlyMsg">Tính năng dành cho tài khoản Premium</string>
     <string name="noEvents">Không có sự kiện cho ngày này</string>
 
 

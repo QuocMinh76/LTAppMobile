@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="@string/pay"
+        android:textSize="20sp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/listview_background"
+        android:textAlignment="center"
+        android:paddingTop="5dp"
+        android:textColor="@color/black"/>
+
+    <EditText
+        android:id="@+id/etCardNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/cardNum"
+        android:inputType="number" />
+
+    <EditText
+        android:id="@+id/etExpiryDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/cardDate"
+        android:inputType="date" />
+
+    <EditText
+        android:id="@+id/etCVC"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/cardCVC"
+        android:inputType="numberPassword" />
+
+    <EditText
+        android:id="@+id/etName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        android:hint="@string/name" />
+
+    <EditText
+        android:id="@+id/etUsername"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        android:hint="@string/username" />
+
+    <Switch
+        android:id="@+id/swPremium"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/premium"
+        android:visibility="gone"/>
+
+    <Button
+        android:id="@+id/btnConfirmPurchase"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/buyBtn" />
+</LinearLayout>

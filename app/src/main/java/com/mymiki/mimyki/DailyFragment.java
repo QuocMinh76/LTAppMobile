@@ -428,7 +428,10 @@ public class DailyFragment extends Fragment {
 
                         dbHelper.addEvent(eventName, description, datetime, location, false, 1, cateId, user_id); // Thêm sự kiện mới
                     } else {
-                        dbHelper.updateEvent(eventId, eventName, description, datetime, location, false, 1);
+                        int taskCurrentPriority = dbHelper.getTaskPriority(eventName, user_id);
+                        int taskCurrentCategory = dbHelper.getTaskCategory(eventName, user_id);
+
+                        dbHelper.updateEvent(eventId, eventName, description, datetime, location, false, taskCurrentCategory, taskCurrentPriority);
                     }
                     loadEventsForSelectedDate();
                 })

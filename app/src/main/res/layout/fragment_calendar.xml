@@ -4,15 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".CalendarFragment"
-    android:background="@drawable/nencal">
+    android:background="@color/white">
     <TextView
         android:id="@+id/daily_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Lịch Tháng"
+        android:text="@string/monthCalendar"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:textColor="@color/white"
         android:layout_marginTop="10dp"
         android:layout_gravity="center_horizontal"
         android:paddingBottom="8dp" />
@@ -87,7 +86,7 @@
         android:layout_gravity="end|bottom"
         android:layout_margin="16dp"
         android:elevation="10dp"
-        android:src="@drawable/ic_add_task"
+        android:src="@drawable/ic_add"
         android:backgroundTint="@color/white"
         android:visibility="visible" />
 </FrameLayout>
