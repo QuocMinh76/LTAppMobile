@@ -38,7 +38,7 @@ This project was developed by a team of 3. Below is a summary of our individual 
 
 | Name              | Contributions                                                                 |
 |-------------------|--------------------------------------------------------------------------------|
-| Hoàng Quốc Minh   | Developed account system, authentication, drag & drop logic, and category system  |
+| Hoàng Quốc Minh   | Developed task management system, account authentication, drag & drop logic, and category system  |
 | Lê Thị Yến My     | Implemented task creation/edit UI, calendar/task views, and personal account UI  |
 | Trần Tuấn Kiệt    | Worked on notification system, location integration, premium upgrade functionality, and matrix/task views  |
 
